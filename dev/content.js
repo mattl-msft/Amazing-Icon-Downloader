@@ -1,0 +1,1 @@
+chrome.runtime.sendMessage({elements: JSON.stringify(document.getElementsByClassName('fxs-portal-svg'))});

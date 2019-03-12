@@ -4,14 +4,32 @@
 		<script src="popup.js"></script>
 		<style>
 			:root {
-				height: 1200px;
 				width: 700px;
-				position: relative;
-				top: 10px;
+			}
+
+			body {
+				padding: 20px;
 			}
 
 			* {
-				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				font-family: 'Segoe UI', Segoe, Tahoma, Geneva, Verdana, sans-serif;
+			}
+
+			#iconList {
+				display: grid;
+				grid-template-columns: 36px 1fr 1fr;
+				grid-template-rows: repeat(36px);
+				grid-column-gap: 10px;
+				grid-row-gap: 10px;
+			}
+
+			.iconPreview {
+				max-height: 36px;
+				max-width: 36px;
+			}
+
+			svg {
+				fill: #000;
 			}
 		</style>
 	</head>

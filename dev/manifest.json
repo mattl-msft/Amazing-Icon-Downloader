@@ -9,17 +9,7 @@
 		"48": "icons/icon48.png",
 		"128": "icons/icon128.png"
 	},
-	"permissions": ["https://*.azure.com/*", "http://*.azure.com/*", "activeTab"],
-	"background": {
-		"persistent": false,
-		"scripts": ["background.js"]
-	},
-	"content_scripts": [
-		{
-			"matches": ["https://*.azure.com/*", "http://*.azure.com/*"],
-			"js": ["content.js"]
-		}
-	],
+	"permissions": ["*://*.azure.com/*", "activeTab"],
 	"browser_action": {
 		"default_icon": "icons/icon16.png",
 		"default_popup": "popup.html"

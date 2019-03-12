@@ -1,16 +1,20 @@
-chrome.runtime.onMessage.addListener(
-	function(request, sender, sendResponse) {
-		console.log('POPUP.JS GOT THE MESSAGE');
-		let elements = JSON.parse(request.elements);
+// document.getElementById('iconList').style.borderWidth = '1px';
 
-		// let con = '';
+function populateIconList(response) {
+	console.log('POPUP.JS GOT THE MESSAGE');
 
-		// if(elements) {
-		// 	elements.forEach(element => {
-		// 		con += `${element.outerHTML}<h1>`;
-		// 	});
-		// }
+	let elements = JSON.parse(response.elements);
 
-		document.getElementById('content').innerHTML = elements;
-	}
-);
+	document.getElementById('iconList').innerHTML = elements;
+}
+
+
+function getIcons() {
+	// chrome.tabs.sendMessage(
+	// 	chrome.tabs.query({active: true}),
+	// 	'geticons',
+	// 	populateIconList
+	// );
+
+	document.getElementById('iconList').innerHTML += 'Another!<br>';
+}

@@ -33,6 +33,9 @@ let translate = [
 	{find:' class="msportalfx-svg-c99"', replace:' fill="#f25022"'}
 ];
 
+let idSuffix = 1;
+let ids = [];
+
 
 document.addEventListener('DOMContentLoaded', function() {
 	getIcons();
@@ -58,7 +61,7 @@ function getIcons() {
 }
 
 chrome.runtime.onMessage.addListener(function(message) {
-	console.log(`POPUP Got Message`);
+	// console.log(`POPUP Got Message`);
 	// console.log(message);
 	
 	populateIconList(message);
@@ -66,7 +69,9 @@ chrome.runtime.onMessage.addListener(function(message) {
 
 function populateIconList(list) {
 	let elements = JSON.parse(list);
-	console.log(elements);
+	// console.log(elements);
+
+	ids = [];
 
 	if(elements.length) {
 		let listContent = '';
@@ -86,6 +91,17 @@ function populateIconList(list) {
 	} else {
 		document.getElementById('iconList').innerHTML = '<i>No icons found</i>';
 	}
+
+	for(let j=0; j<ids.length; j++) {
+		document.getElementById('button'+ids[j]).onclick = function() { downloadIcon(ids[j]) };
+	}
+}
+
+function downloadIcon(number) {
+	// console.log(number);
+	let name = document.getElementById('name'+number).value;
+	let icon = document.getElementById('icon'+number).innerHTML;
+	downloadFile(name, icon);
 }
 
 function isSingleInstance(keyword, searchString) {
@@ -104,8 +120,8 @@ function isSVG(searchString) {
 }
 
 function makeOneIconRow(iconSVG) {
-	console.log(`\n makeOneIconRow`);
-	console.log(iconSVG);
+	// console.log(`\n makeOneIconRow`);
+	// console.log(iconSVG);
 
 	let element = document.createElement('div');
 	element.innerHTML = iconSVG;
@@ -115,10 +131,35 @@ function makeOneIconRow(iconSVG) {
 	iconSVG = iconSVG.replace('<svg><defs><symbol', '<svg');
 	iconSVG = iconSVG.replace('</symbol></defs></svg>', '</svg>');
 	
+	idSuffix++;
+	ids.push(idSuffix);
+
 	let con = '';
-	con += `<div style="grid-column: 1;" class="iconPreview">${iconSVG}</div>`;
-	con += `<div style="grid-column: 2;">${name}</div>`;
-	con += `<button style="grid-column: 3;" class="downloadButton">&#x21e9;</button>`;
+	con += `<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}">${iconSVG}</div>`;
+	con += `<div style="grid-column: 2;" class="iconName">
+				<input type="text"  id="name${idSuffix}" value="${name}"></input>
+			</div>`;
+	con += `<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}">&#x21e9;</button>`;
 
 	return con;
+}
+
+function downloadFile(name = 'icon', fContent) {
+	let file = new Blob([fContent], {type: 'svg'});
+	name += '.svg';
+
+	if (window.navigator.msSaveOrOpenBlob) // IE10+
+		window.navigator.msSaveOrOpenBlob(file, name);
+	else { // Others
+		let a = document.createElement("a");
+		let url = URL.createObjectURL(file);
+		a.href = url;
+		a.download = name;
+		document.body.appendChild(a);
+		a.click();
+		setTimeout(function() {
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);  
+		}, 0); 
+	}
 }

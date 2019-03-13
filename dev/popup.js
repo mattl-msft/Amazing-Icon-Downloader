@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function getIcons() {
-	document.getElementById('iconList').innerHTML = '<i>Getting icons...</i>';
+	document.getElementById('iconList').innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
 
 	chrome.tabs.executeScript({
 		code: `
@@ -89,7 +89,7 @@ function populateIconList(list) {
 	
 		document.getElementById('iconList').innerHTML = listContent;
 	} else {
-		document.getElementById('iconList').innerHTML = '<i>No icons found</i>';
+		document.getElementById('iconList').innerHTML = '<i style="grid-column: span 3;">No icons found</i>';
 	}
 
 	for(let j=0; j<ids.length; j++) {

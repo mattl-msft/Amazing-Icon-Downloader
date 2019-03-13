@@ -1,7 +1,9 @@
 {
 	"name": "Azure Icon Downloader",
 	"version": "0.1",
+	"version_name": "Version 0.1 - Beta",
 	"description": "Easily find and download SVG Icons from the Microsoft Azure Portal.",
+	"author": "Matt LaGrandeur",
 	"manifest_version": 2,
 	"icons": {
 		"16": "icons/icon16.png",

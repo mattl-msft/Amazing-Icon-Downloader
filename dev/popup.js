@@ -47,6 +47,8 @@ function getIcons() {
 	chrome.tabs.executeScript({
 		code: `
 			(function () {
+				console.log('Azure Icon Downloader - script running');
+				
 				let returnElements = [];
 				
 				let symbols = document.getElementById('FxSymbolContainer');
@@ -74,10 +76,10 @@ function populateIconList(list) {
 	ids = [];
 
 	if(elements.length) {
-		let listContent = '';
+		let listContent = `<i style="grid-column: span 3;">${elements.length} icons found</i>`;
 		let iconSVG = '';
 
-		for(let i=0; i<elements.length; i++) {
+		for(let i = elements.length-1; i > -1; i--) {
 			iconSVG = elements[i];
 
 			for(let i=0; i<translate.length; i++){
@@ -135,11 +137,11 @@ function makeOneIconRow(iconSVG) {
 	ids.push(idSuffix);
 
 	let con = '';
-	con += `<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}">${iconSVG}</div>`;
+	con += `<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}" title="SVG file preview">${iconSVG}</div>`;
 	con += `<div style="grid-column: 2;" class="iconName">
-				<input type="text"  id="name${idSuffix}" value="${name}"></input>
+				<input type="text"  id="name${idSuffix}" value="${name}" title="Rename the icon SVG file"></input>
 			</div>`;
-	con += `<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}">&#x21e9;</button>`;
+	con += `<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}" title="Download the SVG file">&#x21e9;</button>`;
 
 	return con;
 }

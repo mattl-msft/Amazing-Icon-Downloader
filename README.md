@@ -1,6 +1,6 @@
 # ![logo](https://raw.githubusercontent.com/mattlag/Azure-Icon-Downloader/master/dev/icons/icon32.png) Azure Icon Downloader
 
-Chrome (and future-Edge!) extension to easily find and download 
+Chrome (and [chromium-Edge](https://blogs.windows.com/windowsexperience/2018/12/06/microsoft-edge-making-the-web-better-through-more-open-source-collaboration/)!) extension to easily find and download 
 SVG icons from the Microsoft Azure portal.
 
 ### Basically does two things:

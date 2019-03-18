@@ -47,8 +47,6 @@ function getIcons() {
 	chrome.tabs.executeScript({
 		code: `
 			(function () {
-				console.log('Azure Icon Downloader - script running');
-				
 				let returnElements = [];
 				
 				let symbols = document.getElementById('FxSymbolContainer');
@@ -139,9 +137,14 @@ function makeOneIconRow(iconSVG) {
 	let con = '';
 	con += `<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}" title="SVG file preview">${iconSVG}</div>`;
 	con += `<div style="grid-column: 2;" class="iconName">
-				<input type="text"  id="name${idSuffix}" value="${name}" title="Rename the icon SVG file"></input>
+				<input type="text"  id="name${idSuffix}" value="${name}" title="Rename the SVG file"></input>
 			</div>`;
-	con += `<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}" title="Download the SVG file">&#x21e9;</button>`;
+	con += `<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}" title="Download the SVG file">
+				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
+					x="0px" y="0px" width="14px" height="16px" viewBox="0 0 14 16" style="enable-background:new 0 0 14 16;">
+					<polygon points="12,7 8.5,10.5 8.5,0 5.5,0 5.5,10.5 2,7 0,9 7,16 14,9 "/>
+				</svg>	
+			</button>`;
 
 	return con;
 }

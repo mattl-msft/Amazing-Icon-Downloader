@@ -62,15 +62,22 @@
 			}
 
 			.downloadButton {
+				opacity: 0.50;
 				border: 1px solid var(--accent);
 				border-radius: 2px;
 				color: var(--accent);
+				fill: var(--accent);
 				background-color: white;
+				font-weight: bold;
+				font-size: 1.6em;
 			}
 
-			.downloadButton:hover {
+			.downloadButton:hover,
+			.downloadButton:focus {
+				opacity: 1;
 				background-color: var(--accent);
 				color: white;
+				fill: white;
 				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
 				cursor: pointer;
 			}

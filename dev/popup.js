@@ -48,13 +48,51 @@ function getIcons() {
 		code: `
 			(function () {
 				let returnElements = [];
+				let nameMap = {};
 				
 				let symbols = document.getElementById('FxSymbolContainer');
+				let symbol;
+				let symbolID;
+				let nameElement;
+				let name;
+				let query;
+				
+				function tryToGetIconName(elem) {
+
+					// try title attributes
+					if(elem && elem.title) return elem.title
+					else if (elem.parentNode.title) return elem.parentNode.title;
+					else if (elem.parentNode.parentNode.title) return elem.parentNode.parentNode.title;
+					else if (elem.parentNode.parentNode.parentNode.title) return elem.parentNode.parentNode.parentNode.title;
+					
+					// try label classes
+					if(elem.parentNode.parentNode.parentNode.querySelector('.fxs-sidebar-label')) {
+						return elem.parentNode.parentNode.parentNode.querySelector('.fxs-sidebar-label').innerText;
+					}
+					
+					if(elem.parentNode.parentNode.parentNode.querySelector('.ext-fxc-menu-listView-item')) {
+						return elem.parentNode.parentNode.parentNode.querySelector('.ext-fxc-menu-listView-item').innerText;
+					}
+
+					return false;
+				}
+
 				if(symbols) {
-					for(let e=0; e<symbols.children.length; e++) returnElements.push(symbols.children[e].outerHTML);
+					for(let e=0; e<symbols.children.length; e++) {
+						symbol = symbols.children[e];
+						symbolID = symbol.firstChild.firstChild.id;
+						query = '[href="#' + symbolID + '"]';
+
+						nameElement = document.querySelector(query);
+						if(nameElement) name = tryToGetIconName(nameElement);
+						if(name) nameMap[symbolID] = name;
+						
+						returnElements.push(symbol.outerHTML);
+					}
 				}
 				
-				chrome.runtime.sendMessage(JSON.stringify(returnElements));
+				let result = {returnElements: returnElements, nameMap: nameMap};
+				chrome.runtime.sendMessage(JSON.stringify(result));			
 			})();
 		`
 	});
@@ -68,13 +106,15 @@ chrome.runtime.onMessage.addListener(function(message) {
 });
 
 function populateIconList(list) {
-	let elements = JSON.parse(list);
-	// console.log(elements);
+	let result = JSON.parse(list);
+	let elements = result.returnElements;
+	let nameMap = result.nameMap;
+	console.log(nameMap);
 
 	ids = [];
 
 	if(elements.length) {
-		let listContent = `<i style="grid-column: span 3;">${elements.length} icons found</i>`;
+		let listContent = `<i style="grid-column: span 3;">${elements.length} icons found. Names are guessed based on nearby text.</i>`;
 		let iconSVG = '';
 
 		for(let i = elements.length-1; i > -1; i--) {
@@ -84,7 +124,7 @@ function populateIconList(list) {
 				iconSVG = iconSVG.replace(new RegExp(translate[i].find, 'gi'), (translate[i].find + translate[i].replace));
 			}
 			
-			listContent += makeOneIconRow(iconSVG);
+			listContent += makeOneIconRow(iconSVG, nameMap);
 		}
 	
 		document.getElementById('iconList').innerHTML = listContent;
@@ -119,14 +159,18 @@ function isSVG(searchString) {
 	return searchString.indexOf('<svg') === 0;
 }
 
-function makeOneIconRow(iconSVG) {
+function makeOneIconRow(iconSVG, nameMap) {
 	// console.log(`\n makeOneIconRow`);
 	// console.log(iconSVG);
 
 	let element = document.createElement('div');
 	element.innerHTML = iconSVG;
-	let name = element.getElementsByTagName('symbol')[0];
-	name = name? name.id : 'name';
+
+	let elemID = element.getElementsByTagName('symbol') || 'name';
+	if(elemID[0] && elemID[0].id) elemID = elemID[0].id;
+
+	let name = nameMap[elemID];
+	if(!name) name = elemID;
 
 	iconSVG = iconSVG.replace('<svg><defs><symbol', '<svg');
 	iconSVG = iconSVG.replace('</symbol></defs></svg>', '</svg>');

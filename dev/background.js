@@ -16,3 +16,17 @@ chrome.runtime.onInstalled.addListener(function() {
 		]);
 	});
 });
+
+
+window.AzureIconDownloader = {};
+
+AzureIconDownloader.tryToGetIconName = function(iconID) {
+	let element = document.querySelectorAll('[href = "#FxSymbol0-00f"]')[0];
+	let name = '';
+
+	if(element) {
+		name = element.parentNode.parentNode.parentNode.children[1].innerText;
+	}
+
+	return name;
+};

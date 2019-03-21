@@ -36,66 +36,71 @@ let translate = [
 let idSuffix = 1;
 let ids = [];
 
-
+// What to do every time the popup is opened
 document.addEventListener('DOMContentLoaded', function() {
-	getIcons();
-});
-
-function getIcons() {
 	document.getElementById('iconList').innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
-
+	
+	// So, this tabs.executeScript takes a code string :-\
+	// 'getIcons' is defined below, then use fn.toString and call it in an IIFE
 	chrome.tabs.executeScript({
 		code: `
 			(function () {
-				let returnElements = [];
-				let nameMap = {};
-				
-				let symbols = document.getElementById('FxSymbolContainer');
-				let symbol;
-				let symbolID;
-				let nameElement;
-				let name;
-				let query;
-				
-				function tryToGetIconName(elem) {
-
-					// try title attributes
-					if(elem && elem.title) return elem.title
-					else if (elem.parentNode.title) return elem.parentNode.title;
-					else if (elem.parentNode.parentNode.title) return elem.parentNode.parentNode.title;
-					else if (elem.parentNode.parentNode.parentNode.title) return elem.parentNode.parentNode.parentNode.title;
-					
-					// try label classes
-					if(elem.parentNode.parentNode.parentNode.querySelector('.fxs-sidebar-label')) {
-						return elem.parentNode.parentNode.parentNode.querySelector('.fxs-sidebar-label').innerText;
-					}
-					
-					if(elem.parentNode.parentNode.parentNode.querySelector('.ext-fxc-menu-listView-item')) {
-						return elem.parentNode.parentNode.parentNode.querySelector('.ext-fxc-menu-listView-item').innerText;
-					}
-
-					return false;
-				}
-
-				if(symbols) {
-					for(let e=0; e<symbols.children.length; e++) {
-						symbol = symbols.children[e];
-						symbolID = symbol.firstChild.firstChild.id;
-						query = '[href="#' + symbolID + '"]';
-
-						nameElement = document.querySelector(query);
-						if(nameElement) name = tryToGetIconName(nameElement);
-						if(name) nameMap[symbolID] = name;
-						
-						returnElements.push(symbol.outerHTML);
-					}
-				}
-				
-				let result = {returnElements: returnElements, nameMap: nameMap};
-				chrome.runtime.sendMessage(JSON.stringify(result));			
+				${getIcons.toString()}
+				getIcons();
 			})();
-		`
+			`
 	});
+});
+
+function getIcons() {
+	let returnElements = [];
+	let nameMap = {};
+	let query;
+	
+	function tryToGetIconName(elem) {
+		// special case classes
+		// Home > Recent
+		if(elem.parentNode.parentNode.parentNode.parentNode.querySelector('.fxs-home-recent-typename')) {
+			return elem.parentNode.parentNode.parentNode.parentNode.querySelector('.fxs-home-recent-typename').innerText;
+		}
+		
+		// TOC nav
+		if(elem.parentNode.parentNode.parentNode.querySelector('.ext-fxc-menu-listView-item')) {
+			return elem.parentNode.parentNode.parentNode.querySelector('.ext-fxc-menu-listView-item').innerText;
+		}
+
+		// generic title attributes
+		if(elem && elem.title) return elem.title;
+		else if (elem.parentNode.title) return elem.parentNode.title;
+		else if (elem.parentNode.parentNode.title) return elem.parentNode.parentNode.title;
+		else if (elem.parentNode.parentNode.parentNode.title) return elem.parentNode.parentNode.parentNode.title;
+		else if (elem.parentNode.parentNode.parentNode.parentNode.title) return elem.parentNode.parentNode.parentNode.parentNode.title;
+		
+		return false;
+	}
+
+	let symbols = document.getElementById('FxSymbolContainer');
+	let symbol;
+	let symbolID;
+	let nameElement;
+	let name;
+
+	if(symbols) {
+		for(let e=0; e<symbols.children.length; e++) {
+			symbol = symbols.children[e];
+			symbolID = symbol.firstChild.firstChild.id;
+			query = '[href="#' + symbolID + '"]';
+
+			nameElement = document.querySelector(query);
+			if(nameElement) name = tryToGetIconName(nameElement);
+			if(name) nameMap[symbolID] = name;
+			
+			returnElements.push(symbol.outerHTML);
+		}
+	}
+	
+	let result = {returnElements: returnElements, nameMap: nameMap};
+	chrome.runtime.sendMessage(JSON.stringify(result));
 }
 
 chrome.runtime.onMessage.addListener(function(message) {

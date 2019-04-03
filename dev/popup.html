@@ -4,8 +4,15 @@
 		<script src="popup.js"></script>
 		<style>
 			:root {
-				--accent: #0078d4;
+				--accent: hsl(206, 100%, 42%);
+				--accent-20: hsla(206, 100%, 42%, 20%);
+				--accent-40: hsla(206, 100%, 42%, 40%);
+				--accent-60: hsla(206, 100%, 42%, 60%);
+				--accent-80: hsla(206, 100%, 42%, 80%);
+				--purple: hsl(298, 83%, 32%);
+				--orange: hsl(31, 100%, 50%);
 			}
+
 			html, body {
 				width: 400px;
 			}
@@ -25,13 +32,79 @@
 				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
 			}
 
-			#iconList {
+			#bodyContent {
 				padding: 20px 0px 40px 20px;
 				display: grid;
 				grid-template-columns: 36px 250px 36px;
 				grid-template-rows: repeat(36px);
 				grid-column-gap: 20px;
 				grid-row-gap: 20px;
+			}
+
+			#info {
+				padding: 20px 20px 40px 20px;
+				position: absolute;
+				top: 72px;
+				background-color: white;
+				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
+				border-bottom: 1px solid #ddd;
+			}
+
+			#info h2 {
+				margin-bottom: 8px;
+				color: var(--purple);
+			}
+
+			#info p {
+				font-size: 14px;
+				margin-bottom: 10px;
+			}
+
+			.headerRow {
+				grid-column: span 3;
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.headerRow i {
+				padding: 4px 0px 0px 2px;
+			}
+
+			.headerRow button {
+				padding: 6px 10px 6px 9px;
+				position: relative;
+				left: 6px;
+				color: var(--accent);
+				border: 0;
+				border-radius: 4px;
+				background-color: transparent;
+			}
+
+			.headerRow button svg {
+				position: relative;
+				top: 2px;
+				fill: var(--accent-80);
+			}
+			
+			.headerRow button:hover,
+			.headerRow button:focus {
+				background-color: var(--accent);
+				color: white;
+				cursor: pointer;
+				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
+				
+				background: linear-gradient(330deg, var(--accent), var(--orange), var(--purple), var(--accent), var(--orange), var(--purple), var(--accent));
+				background-size: 1400% 1400%;
+				animation: disco 3s linear infinite;
+			}
+
+			@keyframes disco { 
+				0%{background-position:0% 50%}
+				100%{background-position:100% 50%}
+			}
+
+			.headerRow button:hover svg {
+				fill: white;
 			}
 
 			.iconPreview {
@@ -53,7 +126,7 @@
 
 			.iconName input:focus,
 			.downloadButton:focus {
-				outline: 1px dotted #900E94;
+				outline: 1px dotted var(--purple);
 				outline-offset: 2px;
 			}
 
@@ -81,10 +154,52 @@
 				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
 				cursor: pointer;
 			}
+
+			#info {
+				display: none;
+			}
 		</style>
 	</head>
 	<body>
 		<h1>Azure Icon Downloader</h1>
-		<div id="iconList"></div>
+		<div id="bodyContent"></div>
+		<div id="info">
+			<div class="headerRow">
+				<div style="grid-column: 2; text-align: right;">
+					<button id="closeInfo">
+						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
+							height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+							<polygon points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "/>
+						</svg>
+						&nbsp;close&nbsp;info
+					</button>
+				</div>
+			</div>
+
+			<h2>Howdy!</h2>
+			<p>
+				This tool works by scraping SVG code from 
+				certain parts of the Azure Management Portal's 
+				HTML code. You may see icons in the downloader that 
+				aren't visible on the page, and, you may see icons 
+				on the page that aren't shown in the downloader.
+			</p>
+			<p>
+				Names of the icons are guessed based on HTML stuff 
+				(labels, titles) that are found 'close' to the icon. 
+				Again, an imperfect system.
+			</p>
+			<p>
+				But mostly, it works pretty well &macr;\_(&#x30c4;)_/&macr;
+			</p>
+
+			<br>
+			<h2>Contact</h2>
+			<p>
+				Any issues, comments, or feature requests can be directed at 
+				<a href="mailto:matt@mattlag.com">matt@mattlag.com</a>.
+			</p>
+
+		</div>
 	</body>
 </html>

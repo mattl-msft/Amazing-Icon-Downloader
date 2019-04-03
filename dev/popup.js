@@ -38,7 +38,7 @@ let ids = [];
 
 // What to do every time the popup is opened
 document.addEventListener('DOMContentLoaded', function() {
-	document.getElementById('iconList').innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
+	document.getElementById('bodyContent').innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
 	
 	// So, this tabs.executeScript takes a code string :-\
 	// 'getIcons' is defined below, then use fn.toString and call it in an IIFE
@@ -50,6 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			})();
 			`
 	});
+
+	document.getElementById('')
 });
 
 function getIcons() {
@@ -119,8 +121,22 @@ function populateIconList(list) {
 	ids = [];
 
 	if(elements.length) {
-		let listContent = `<i style="grid-column: span 3;">${elements.length} icons found. Names are guessed based on nearby text.</i>`;
 		let iconSVG = '';
+		let bodyContent = `
+			<div class="headerRow">
+				<i style="grid-column: 1">${elements.length} icons found.</i>
+				<div style="grid-column: 2; text-align: right;">
+					<button id="openInfo">
+						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
+							height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+						<path d="M7,0C3.1,0,0,3.1,0,7c0,3.9,3.1,7,7,7s7-3.1,7-7C14,3.1,10.9,0,7,0z M8,12H6V6h2V12z M7,4.5c-0.8,0-1.3-0.6-1.3-1.3
+							S6.4,2,7,2c0.6,0,1.3,0.6,1.3,1.3S7.8,4.5,7,4.5z"/>
+						</svg>
+						&nbsp;info
+					</button>
+				</div>
+			</div>
+		`;
 
 		for(let i = elements.length-1; i > -1; i--) {
 			iconSVG = elements[i];
@@ -129,18 +145,22 @@ function populateIconList(list) {
 				iconSVG = iconSVG.replace(new RegExp(translate[i].find, 'gi'), (translate[i].find + translate[i].replace));
 			}
 			
-			listContent += makeOneIconRow(iconSVG, nameMap);
+			bodyContent += makeOneIconRow(iconSVG, nameMap);
 		}
 	
-		document.getElementById('iconList').innerHTML = listContent;
+		document.getElementById('bodyContent').innerHTML = bodyContent;
 	} else {
-		document.getElementById('iconList').innerHTML = '<i style="grid-column: span 3;">No icons found</i>';
+		document.getElementById('bodyContent').innerHTML = '<i style="grid-column: span 3;">No icons found</i>';
 	}
+
+	document.getElementById('openInfo').onclick = () => document.getElementById('info').style.display = 'block';
+	document.getElementById('closeInfo').onclick = () => document.getElementById('info').style.display = 'none';
 
 	for(let j=0; j<ids.length; j++) {
 		document.getElementById('button'+ids[j]).onclick = function() { downloadIcon(ids[j]) };
 	}
 }
+
 
 function downloadIcon(number) {
 	// console.log(number);

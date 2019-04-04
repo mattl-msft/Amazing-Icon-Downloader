@@ -11,6 +11,8 @@
 				--accent-80: hsla(206, 100%, 42%, 80%);
 				--purple: hsl(298, 83%, 32%);
 				--orange: hsl(31, 100%, 50%);
+
+				--fade: 200ms;
 			}
 
 			html, body {
@@ -47,7 +49,7 @@
 				top: 72px;
 				background-color: white;
 				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
-				border-bottom: 1px solid #ddd;
+				border-bottom: 1px solid #ccc;
 			}
 
 			#info h2 {
@@ -71,40 +73,62 @@
 			}
 
 			.headerRow button {
-				padding: 6px 10px 6px 9px;
+				padding: 0;
 				position: relative;
 				left: 6px;
 				color: var(--accent);
 				border: 0;
 				border-radius: 4px;
-				background-color: transparent;
+				background-image: linear-gradient(315deg,
+					var(--purple),
+					var(--purple),
+					var(--accent),
+					var(--purple),
+					var(--orange),
+					var(--purple),
+					var(--purple)
+				);
+				background-size: 1400% 1400%;
+				animation: disco 4s linear infinite;
 			}
 
-			.headerRow button svg {
+			.headerRow button span {
+				display: block;
+				padding: 6px 10px 6px 9px;
+				background-color: white;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.headerRow button span svg {
 				position: relative;
 				top: 2px;
 				fill: var(--accent-80);
+				transition: all var(--fade) ease-in-out;
 			}
 			
 			.headerRow button:hover,
 			.headerRow button:focus {
-				background-color: var(--accent);
 				color: white;
 				cursor: pointer;
 				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
-				
-				background: linear-gradient(330deg, var(--accent), var(--orange), var(--purple), var(--accent), var(--orange), var(--purple), var(--accent));
-				background-size: 1400% 1400%;
-				animation: disco 3s linear infinite;
+				transition: all var(--fade) ease-in-out;
 			}
 
 			@keyframes disco { 
-				0%{background-position:0% 50%}
-				100%{background-position:100% 50%}
+				0%{background-position:0% 0%}
+				100%{background-position:100% 100%}
 			}
 
-			.headerRow button:hover svg {
+			.headerRow button:hover span,
+			.headerRow button:focus span {
+				background-color: transparent;
+				color: white;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.headerRow button:hover span svg {
 				fill: white;
+				transition: all var(--fade) ease-in-out;
 			}
 
 			.iconPreview {
@@ -118,6 +142,7 @@
 				height: 30px;
 				margin: 3px 0px;
 				padding: 2px 8px;
+				transition: all var(--fade) ease-in-out;
 			}
 
 			.iconName input {
@@ -128,6 +153,7 @@
 			.downloadButton:focus {
 				outline: 1px dotted var(--purple);
 				outline-offset: 2px;
+				transition: all var(--fade) ease-in-out;
 			}
 
 			.iconName input:hover {
@@ -166,13 +192,13 @@
 		<div id="info">
 			<div class="headerRow">
 				<div style="grid-column: 2; text-align: right;">
-					<button id="closeInfo">
+					<button id="closeInfo"><span>
 						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
 							height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
 							<polygon points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "/>
 						</svg>
 						&nbsp;close&nbsp;info
-					</button>
+					</span></button>
 				</div>
 			</div>
 
@@ -182,7 +208,8 @@
 				certain parts of the Azure Management Portal's 
 				HTML code. You may see icons in the downloader that 
 				aren't visible on the page, and, you may see icons 
-				on the page that aren't shown in the downloader.
+				on the page that aren't shown in the downloader. 
+				Not quite perfect.
 			</p>
 			<p>
 				Names of the icons are guessed based on HTML stuff 
@@ -190,7 +217,7 @@
 				Again, an imperfect system.
 			</p>
 			<p>
-				But mostly, it works pretty well &macr;\_(&#x30c4;)_/&macr;
+				But mostly it works pretty well&emsp;&macr;\_(&#x30c4;)_/&macr;
 			</p>
 
 			<br>

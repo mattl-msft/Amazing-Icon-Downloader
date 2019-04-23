@@ -1,9 +1,9 @@
 {
-	"name": "Azure Icon Downloader",
-	"short_name": "Azure Icon Downloader",
-	"version": "1.2",
-	"version_name": "Version 1.2",
-	"description": "Easily find and download SVG Icons from the Microsoft Azure Portal.",
+	"name": "Amazing Icon Downloader",
+	"short_name": "Amazing Icon Downloader",
+	"version": "1.3",
+	"version_name": "Version 1.3",
+	"description": "Easily find and download SVG Icons from a certain cloud management portal.",
 	"author": "Matt LaGrandeur",
 	"manifest_version": 2,
 	"icons": {

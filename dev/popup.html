@@ -4,11 +4,11 @@
 		<script src="popup.js"></script>
 		<style>
 			:root {
-				--accent: hsl(206, 100%, 42%);
-				--accent-20: hsla(206, 100%, 42%, 20%);
-				--accent-40: hsla(206, 100%, 42%, 40%);
-				--accent-60: hsla(206, 100%, 42%, 60%);
-				--accent-80: hsla(206, 100%, 42%, 80%);
+				--accent: hsl(210, 90%, 40%);
+				--accent-20: hsla(210, 90%, 40%, 20%);
+				--accent-40: hsla(210, 90%, 40%, 40%);
+				--accent-60: hsla(210, 90%, 40%, 60%);
+				--accent-80: hsla(210, 90%, 40%, 80%);
 				--purple: hsl(298, 83%, 32%);
 				--orange: hsl(31, 100%, 50%);
 
@@ -28,10 +28,15 @@
 
 			h1 {
 				font-weight: normal;
+				font-size: 24px;
 				color: white;
-				padding: 20px;
+				padding: 10px 0px 10px 20px;
 				background: var(--accent) url(icons/icon128.png) no-repeat right 60%;
 				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
+			}
+
+			h1 div {
+				font-size: .6em;
 			}
 
 			#bodyContent {
@@ -187,7 +192,7 @@
 		</style>
 	</head>
 	<body>
-		<h1>Azure Icon Downloader</h1>
+		<h1><div>Amazing</div>Icon Downloader</h1>
 		<div id="bodyContent"></div>
 		<div id="info">
 			<div class="headerRow">
@@ -205,7 +210,7 @@
 			<h2>Howdy!</h2>
 			<p>
 				This tool works by scraping SVG code from 
-				certain parts of the Azure Management Portal's 
+				certain parts of the Azure&trade; Management Portal's 
 				HTML code. You may see icons in the downloader that 
 				aren't visible on the page, and, you may see icons 
 				on the page that aren't shown in the downloader. 

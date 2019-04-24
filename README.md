@@ -1,6 +1,6 @@
 # ![logo](https://raw.githubusercontent.com/mattlag/Amazing-Icon-Downloader/master/dev/icons/icon32.png) Amazing Icon Downloader
 
-Chrome (and [chromium-Edge](https://blogs.windows.com/windowsexperience/2018/12/06/microsoft-edge-making-the-web-better-through-more-open-source-collaboration/)!) extension to easily find and download 
+Chrome (and [chromium-Edge](https://www.microsoftedgeinsider.com/download)!) extension to easily find and download 
 SVG icons from the Azure&trade; Management portal.
 
 
@@ -10,7 +10,8 @@ SVG icons from the Azure&trade; Management portal.
    - In the background, the extension adds `fill="#"` color attributes that correspond to the CSS-based fill colors, so that the SVG icons can be used outside of the Azure&trade; portal.
    - Tries to guess the name of the icon based on DOM `title` attributes that are 'close' to the SVG.
 
-<!-- ## [Download the extension from the Chrome Web Store](https://chrome.google.com/webstore/detail/azure-icon-downloader/glemeanledcegajlgfioahofcldhdcpa) -->
+
+## [Download the extension from the Chrome Web Store](https://chrome.google.com/webstore/detail/amazing-icon-downloader/kllljifcjfleikiipbkdcgllbllahaob/)
 
 
 ## This is not an official extension

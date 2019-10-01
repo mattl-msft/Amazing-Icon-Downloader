@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			`
 	});
 
-	document.getElementById('')
+	// document.getElementById('');
 });
 
 function getIcons() {
@@ -157,17 +157,14 @@ function populateIconList(list) {
 		let iconSVG = '';
 		let bodyContent = `
 			<div class="headerRow">
-				<i style="grid-column: 1">${elements.length} icons found.</i>
-				<div style="grid-column: 2; text-align: right;">
-					<button id="openInfo"><span>
-						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
-							height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-						<path d="M7,0C3.1,0,0,3.1,0,7c0,3.9,3.1,7,7,7s7-3.1,7-7C14,3.1,10.9,0,7,0z M8,12H6V6h2V12z M7,4.5c-0.8,0-1.3-0.6-1.3-1.3
-							S6.4,2,7,2c0.6,0,1.3,0.6,1.3,1.3S7.8,4.5,7,4.5z"/>
-						</svg>
-						&nbsp;info
-					</span></button>
-				</div>
+				<input type="text" id="searchBox" placeholder="Search across ${elements.length} icons"></input>
+				<button id="openInfo"><span>
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
+						height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+					<path d="M7,0C3.1,0,0,3.1,0,7c0,3.9,3.1,7,7,7s7-3.1,7-7C14,3.1,10.9,0,7,0z M8,12H6V6h2V12z M7,4.5c-0.8,0-1.3-0.6-1.3-1.3
+						S6.4,2,7,2c0.6,0,1.3,0.6,1.3,1.3S7.8,4.5,7,4.5z"/>
+					</svg>
+				</span></button>
 			</div>
 		`;
 
@@ -190,7 +187,7 @@ function populateIconList(list) {
 	document.getElementById('closeInfo').onclick = () => document.getElementById('info').style.display = 'none';
 
 	for(let j=0; j<ids.length; j++) {
-		document.getElementById('button'+ids[j]).onclick = function() { downloadIcon(ids[j]) };
+		document.getElementById('button'+ids[j]).onclick = function() { downloadIcon(ids[j]); };
 	}
 }
 
@@ -221,10 +218,9 @@ function makeOneIconRow(iconSVG, nameMap) {
 	// console.log(`\n makeOneIconRow`);
 	// console.log(iconSVG);
 
-	let element = document.createElement('div');
-	element.innerHTML = iconSVG;
-
-	let elemID = element.getElementsByTagName('symbol') || 'name';
+	let findID = document.createElement('div');
+	findID.innerHTML = iconSVG;
+	let elemID = findID.getElementsByTagName('symbol') || 'name';
 	if(elemID[0] && elemID[0].id) elemID = elemID[0].id;
 
 	let name = nameMap[elemID];
@@ -236,22 +232,25 @@ function makeOneIconRow(iconSVG, nameMap) {
 	idSuffix++;
 	ids.push(idSuffix);
 
-	let con = '';
-	con += `<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}" title="SVG file preview">${iconSVG}</div>`;
-	con += `<div style="grid-column: 2;" class="iconName">
+	let con = `
+		<div class="rowWrapper" data-search-name="${name}">
+			<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}" title="SVG file preview">${iconSVG}</div>
+			<div style="grid-column: 2;" class="iconName">
 				<input type="text"  id="name${idSuffix}" value="${name}" title="Rename the SVG file"></input>
-			</div>`;
-	con += `<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}" title="Download the SVG file">
+			</div>
+			<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}" title="Download the SVG file">
 				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
 					x="0px" y="0px" width="14px" height="16px" viewBox="0 0 14 16" style="enable-background:new 0 0 14 16;">
 					<polygon points="12,7 8.5,10.5 8.5,0 5.5,0 5.5,10.5 2,7 0,9 7,16 14,9 "/>
 				</svg>
-			</button>`;
+			</button>
+		</div>
+	`;
 
 	return con;
 }
 
-function downloadFile(name = 'icon', fContent) {
+function downloadFile(name = 'icon', fContent = '') {
 	let file = new Blob([fContent], {type: 'svg'});
 	name += '.svg';
 

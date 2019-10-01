@@ -58,6 +58,7 @@
 			}
 
 			#info h2 {
+				margin-top: 36px;
 				margin-bottom: 8px;
 				color: var(--purple);
 			}
@@ -68,9 +69,7 @@
 			}
 
 			.headerRow {
-				grid-column: span 3;
-				display: grid;
-				grid-template-columns: 1fr 1fr;
+				display: contents !important;
 			}
 
 			.headerRow i {
@@ -79,8 +78,6 @@
 
 			.headerRow button {
 				padding: 0;
-				position: relative;
-				left: 6px;
 				color: var(--accent);
 				border: 0;
 				border-radius: 4px;
@@ -99,7 +96,8 @@
 
 			.headerRow button span {
 				display: block;
-				padding: 6px 10px 6px 9px;
+				height: 36px;
+				padding: 10px 10px 6px 9px;
 				background-color: white;
 				transition: all var(--fade) ease-in-out;
 			}
@@ -131,9 +129,28 @@
 				transition: all var(--fade) ease-in-out;
 			}
 
-			.headerRow button:hover span svg {
+			.headerRow button:hover span svg,
+			.headerRow button:focus span svg {
 				fill: white;
 				transition: all var(--fade) ease-in-out;
+			}
+
+			#closeInfo {
+				float: right;
+			}
+
+			#searchBox {
+				grid-column: 1 / 3;
+			}
+
+			#searchBox input::after {
+				content: 'o';
+				position: relative;
+				left: -10px;
+			}
+
+			.rowWrapper {
+				display: contents !important;
 			}
 
 			.iconPreview {
@@ -142,6 +159,7 @@
 			}
 
 			.iconName input,
+			#searchBox,
 			.downloadButton {
 				width: 100%;
 				height: 30px;
@@ -150,10 +168,13 @@
 				transition: all var(--fade) ease-in-out;
 			}
 
-			.iconName input {
+			.iconName input,
+			#searchBox {
 				border: 1px solid #EEE;
 			}
 
+			#searchBox:focus,
+			.headerRow button:focus,
 			.iconName input:focus,
 			.downloadButton:focus {
 				outline: 1px dotted var(--purple);
@@ -161,7 +182,8 @@
 				transition: all var(--fade) ease-in-out;
 			}
 
-			.iconName input:hover {
+			.iconName input:hover,
+			#searchBox:hover {
 				border-color: #BBB;
 			}
 
@@ -196,15 +218,13 @@
 		<div id="bodyContent"></div>
 		<div id="info">
 			<div class="headerRow">
-				<div style="grid-column: 2; text-align: right;">
-					<button id="closeInfo"><span>
-						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
-							height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-							<polygon points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "/>
-						</svg>
-						&nbsp;close&nbsp;info
-					</span></button>
-				</div>
+				<button id="closeInfo"><span>
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
+						height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+						<polygon points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "/>
+					</svg>
+					&nbsp;close&nbsp;info
+				</span></button>
 			</div>
 
 			<h2>Howdy!</h2>

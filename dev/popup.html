@@ -141,6 +141,8 @@
 
 			#searchBox {
 				grid-column: 1 / 3;
+				border: 1px solid var(--purple);
+				border-radius: 6px;
 			}
 
 			#searchBox input::after {
@@ -150,7 +152,7 @@
 			}
 
 			.rowWrapper {
-				display: contents !important;
+				display: contents;
 			}
 
 			.iconPreview {
@@ -168,8 +170,7 @@
 				transition: all var(--fade) ease-in-out;
 			}
 
-			.iconName input,
-			#searchBox {
+			.iconName input {
 				border: 1px solid #EEE;
 			}
 
@@ -182,8 +183,7 @@
 				transition: all var(--fade) ease-in-out;
 			}
 
-			.iconName input:hover,
-			#searchBox:hover {
+			.iconName input:hover {
 				border-color: #BBB;
 			}
 
@@ -245,7 +245,6 @@
 				But mostly it works pretty well&emsp;&macr;\_(&#x30c4;)_/&macr;
 			</p>
 
-			<br>
 			<h2>Contact</h2>
 			<p>
 				Any issues, comments, or feature requests can be directed at 

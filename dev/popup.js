@@ -177,12 +177,17 @@ function populateIconList(list) {
 			
 			bodyContent += makeOneIconRow(iconSVG, nameMap);
 		}
+
+		bodyContent += '<i style="grid-column: span 3;">End of icon list</i>';
 	
 		document.getElementById('bodyContent').innerHTML = bodyContent;
 	} else {
 		document.getElementById('bodyContent').innerHTML = '<i style="grid-column: span 3;">No icons found</i>';
 	}
 
+	document.getElementById('searchBox').onkeypress = search;
+	document.getElementById('searchBox').onchange = search;
+	document.getElementById('searchBox').onkeyup = search;
 	document.getElementById('openInfo').onclick = () => document.getElementById('info').style.display = 'block';
 	document.getElementById('closeInfo').onclick = () => document.getElementById('info').style.display = 'none';
 
@@ -191,6 +196,20 @@ function populateIconList(list) {
 	}
 }
 
+function search() {
+	let term = document.getElementById('searchBox').value;
+	let rows = document.querySelectorAll('.rowWrapper');
+	let rowName;
+
+	rows.forEach(row => {
+		rowName = row.getAttribute('data-search-name');
+		if(rowName.toLocaleLowerCase().includes(term.toLocaleLowerCase()) || term === '') {
+			row.style.display = 'contents';
+		} else {
+			row.style.display = 'none';
+		}
+	});
+}
 
 function downloadIcon(number) {
 	// console.log(number);

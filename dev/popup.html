@@ -9,6 +9,7 @@
 				--accent-40: hsla(210, 90%, 40%, 40%);
 				--accent-60: hsla(210, 90%, 40%, 60%);
 				--accent-80: hsla(210, 90%, 40%, 80%);
+				--accent-90: hsla(210, 90%, 40%, 90%);
 				--purple: hsl(298, 83%, 32%);
 				--orange: hsl(31, 100%, 50%);
 
@@ -26,17 +27,11 @@
 				box-sizing: border-box;
 			}
 
-			h1 {
-				font-weight: normal;
-				font-size: 24px;
-				color: white;
-				padding: 10px 0px 10px 20px;
-				background: var(--accent) url(icons/icon128.png) no-repeat right 60%;
+			#top {
+				height: 72px;
+				padding: 16px 0px 10px 20px;
+				background: linear-gradient(hsl(210, 90%, 50%), hsl(210, 90%, 40%));
 				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
-			}
-
-			h1 div {
-				font-size: .6em;
 			}
 
 			#bodyContent {
@@ -78,7 +73,7 @@
 
 			.headerRow button {
 				padding: 0;
-				color: var(--accent);
+				color: var(--accent-80);
 				border: 0;
 				border-radius: 4px;
 				background-image: linear-gradient(315deg,
@@ -214,7 +209,7 @@
 		</style>
 	</head>
 	<body>
-		<h1><div>Amazing</div>Icon Downloader</h1>
+		<div id="top"><img src="icons/logo.svg"/></div>
 		<div id="bodyContent"></div>
 		<div id="info">
 			<div class="headerRow">

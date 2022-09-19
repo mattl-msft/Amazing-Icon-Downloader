@@ -1,23 +1,26 @@
 {
 	"name": "Amazing Icon Downloader",
 	"short_name": "Amazing Icon Downloader",
-	"version": "1.9",
-	"version_name": "Version 1.9",
+	"version": "2.0",
+	"version_name": "Version 2.0",
 	"description": "Easily find and download SVG Icons from a certain cloud management portal.",
 	"author": "Matt LaGrandeur",
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"icons": {
 		"16": "icons/icon16.png",
 		"32": "icons/icon32.png",
 		"48": "icons/icon48.png",
 		"128": "icons/icon128.png"
 	},
-	"permissions": ["activeTab", "declarativeContent"],
+	"permissions": [
+		"scripting",
+		"activeTab", 
+		"declarativeContent"
+	],
 	"background": {
-		"scripts": ["background.js"],
-		"persistent": false
+		"service_worker": "background.js"
 	},
-	"page_action": {
+	"action": {
 		"default_popup": "popup.html",
 		"default_icon": {
 			"16": "icons/icon16.png",

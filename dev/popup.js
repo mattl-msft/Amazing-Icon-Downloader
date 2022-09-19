@@ -1,65 +1,28 @@
-let translate = [
-	{className: 'msportalfx-svg-c01', fillValue: '#ffffff'},
-	{className: 'msportalfx-svg-c02', fillValue: '#e5e5e5'},
-	{className: 'msportalfx-svg-c03', fillValue: '#a0a1a2'},
-	{className: 'msportalfx-svg-c04', fillValue: '#7a7a7a'},
-	{className: 'msportalfx-svg-c05', fillValue: '#3e3e3e'},
-	{className: 'msportalfx-svg-c06', fillValue: '#1e1e1e'},
-	{className: 'msportalfx-svg-c07', fillValue: '#0f0f0f'},
-	{className: 'msportalfx-svg-c08', fillValue: '#ba141a'},
-	{className: 'msportalfx-svg-c09', fillValue: '#dd5900'},
-	{className: 'msportalfx-svg-c10', fillValue: '#ff8c00'},
-	{className: 'msportalfx-svg-c11', fillValue: '#fcd116'},
-	{className: 'msportalfx-svg-c12', fillValue: '#fee087'},
-	{className: 'msportalfx-svg-c13', fillValue: '#b8d432'},
-	{className: 'msportalfx-svg-c14', fillValue: '#57a300'},
-	{className: 'msportalfx-svg-c15', fillValue: '#59b4d9'},
-	{className: 'msportalfx-svg-c16', fillValue: '#3999c6'},
-	{className: 'msportalfx-svg-c17', fillValue: '#804998'},
-	{className: 'msportalfx-svg-c18', fillValue: '#ec008c'},
-	{className: 'msportalfx-svg-c19', fillValue: '#0072c6'},
-	{className: 'msportalfx-svg-c20', fillValue: '#68217a'},
-	{className: 'msportalfx-svg-c21', fillValue: '#00188f'},
-	{className: 'msportalfx-svg-c22', fillValue: '#a4262c'},
-	{className: 'msportalfx-svg-c23', fillValue: '#cae3f3'},
-	{className: 'msportalfx-svg-c24', fillValue: '#59aed3'},
-	{className: 'msportalfx-svg-c25', fillValue: '#4c3b12'},
-	{className: 'msportalfx-svg-c26', fillValue: '#be9555'},
-	{className: 'msportalfx-svg-c27', fillValue: '#4f4d52'},
-	{className: 'msportalfx-svg-c28', fillValue: '#ef6f59'},
-	{className: 'msportalfx-svg-c29', fillValue: '#f7cb64'},
-	{className: 'msportalfx-svg-c30', fillValue: '#fdd8db'},
-	{className: 'msportalfx-svg-c31', fillValue: '#f6ffec'},
-	{className: 'msportalfx-svg-c32', fillValue: '#57a300'},
-	{className: 'msportalfx-svg-c33', fillValue: '#8a2da5'},
-	{className: 'msportalfx-svg-c34', fillValue: '#e00b1c'},
-	{className: 'msportalfx-svg-c35', fillValue: '#015cda'},
-	{className: 'msportalfx-svg-c36', fillValue: '#5db300'},
-	{className: 'msportalfx-svg-c97', fillValue: '#ffb900'},
-	{className: 'msportalfx-svg-c98', fillValue: '#00a4ef'},
-	{className: 'msportalfx-svg-c99', fillValue: '#f25022'}
-];
-
-let idSuffix = 1;
-let ids = [];
+// -----------------------------------------
+// Gathering data to populate the icon list
+// -----------------------------------------
 
 // What to do every time the popup is opened
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async () => {
 	document.getElementById('bodyContent').innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
 	
-	// So, this tabs.executeScript takes a code string :-\
-	// 'getIcons' is defined below, then use fn.toString and call it in an IIFE
-	chrome.tabs.executeScript({
-		code: `
-			(function () {
-				${getIcons.toString()}
-				getIcons();
-			})();
-			`
+	const tab = await getCurrentTab();
+	console.log(tab);
+
+	let results = await chrome.scripting.executeScript({
+		target: {tabId: tab.id},
+		func: getIcons,
 	});
 
-	// document.getElementById('');
+	populateIconList(results[0].result);
 });
+
+async function getCurrentTab() {
+	let queryOptions = { active: true, lastFocusedWindow: true };
+	// `tab` will either be a `tabs.Tab` instance or `undefined`.
+	let [tab] = await chrome.tabs.query(queryOptions);
+	return tab;
+}
 
 function getIcons() {
 	let symbols = document.getElementById('FxSymbolContainer');
@@ -185,20 +148,63 @@ function getIcons() {
 	}
 
 	let result = {elems: returnElements, names: nameMap, defs: returnDefs};
-	chrome.runtime.sendMessage(JSON.stringify(result));
+	return result;
 }
 
-chrome.runtime.onMessage.addListener(function(message) {
-	// console.log(`POPUP Got Message`);
-	// console.log(message);	
-	populateIconList(message);
-});
+
+
+// -----------------------------------------
+// Making the icon list
+// -----------------------------------------
+let translate = [
+	{className: 'msportalfx-svg-c01', fillValue: '#ffffff'},
+	{className: 'msportalfx-svg-c02', fillValue: '#e5e5e5'},
+	{className: 'msportalfx-svg-c03', fillValue: '#a0a1a2'},
+	{className: 'msportalfx-svg-c04', fillValue: '#7a7a7a'},
+	{className: 'msportalfx-svg-c05', fillValue: '#3e3e3e'},
+	{className: 'msportalfx-svg-c06', fillValue: '#1e1e1e'},
+	{className: 'msportalfx-svg-c07', fillValue: '#0f0f0f'},
+	{className: 'msportalfx-svg-c08', fillValue: '#ba141a'},
+	{className: 'msportalfx-svg-c09', fillValue: '#dd5900'},
+	{className: 'msportalfx-svg-c10', fillValue: '#ff8c00'},
+	{className: 'msportalfx-svg-c11', fillValue: '#fcd116'},
+	{className: 'msportalfx-svg-c12', fillValue: '#fee087'},
+	{className: 'msportalfx-svg-c13', fillValue: '#b8d432'},
+	{className: 'msportalfx-svg-c14', fillValue: '#57a300'},
+	{className: 'msportalfx-svg-c15', fillValue: '#59b4d9'},
+	{className: 'msportalfx-svg-c16', fillValue: '#3999c6'},
+	{className: 'msportalfx-svg-c17', fillValue: '#804998'},
+	{className: 'msportalfx-svg-c18', fillValue: '#ec008c'},
+	{className: 'msportalfx-svg-c19', fillValue: '#0072c6'},
+	{className: 'msportalfx-svg-c20', fillValue: '#68217a'},
+	{className: 'msportalfx-svg-c21', fillValue: '#00188f'},
+	{className: 'msportalfx-svg-c22', fillValue: '#a4262c'},
+	{className: 'msportalfx-svg-c23', fillValue: '#cae3f3'},
+	{className: 'msportalfx-svg-c24', fillValue: '#59aed3'},
+	{className: 'msportalfx-svg-c25', fillValue: '#4c3b12'},
+	{className: 'msportalfx-svg-c26', fillValue: '#be9555'},
+	{className: 'msportalfx-svg-c27', fillValue: '#4f4d52'},
+	{className: 'msportalfx-svg-c28', fillValue: '#ef6f59'},
+	{className: 'msportalfx-svg-c29', fillValue: '#f7cb64'},
+	{className: 'msportalfx-svg-c30', fillValue: '#fdd8db'},
+	{className: 'msportalfx-svg-c31', fillValue: '#f6ffec'},
+	{className: 'msportalfx-svg-c32', fillValue: '#57a300'},
+	{className: 'msportalfx-svg-c33', fillValue: '#8a2da5'},
+	{className: 'msportalfx-svg-c34', fillValue: '#e00b1c'},
+	{className: 'msportalfx-svg-c35', fillValue: '#015cda'},
+	{className: 'msportalfx-svg-c36', fillValue: '#5db300'},
+	{className: 'msportalfx-svg-c97', fillValue: '#ffb900'},
+	{className: 'msportalfx-svg-c98', fillValue: '#00a4ef'},
+	{className: 'msportalfx-svg-c99', fillValue: '#f25022'}
+];
+
+let ids = [];
 
 function populateIconList(list) {
-	let result = JSON.parse(list);
-	let elements = result.elems;
-	let nameMap = result.names;
-	let defs = result.defs;
+	console.log(list);
+	let elements = list.elems;
+	let nameMap = list.names;
+	let defs = list.defs;
 
 	ids = [];
 
@@ -207,10 +213,10 @@ function populateIconList(list) {
 			<div class="headerRow">
 				<input type="text" id="searchBox" placeholder="Search across ${elements.length} icons"></input>
 				<button id="openInfo"><span>
-					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px"
-						height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-					<path d="M7,0C3.1,0,0,3.1,0,7c0,3.9,3.1,7,7,7s7-3.1,7-7C14,3.1,10.9,0,7,0z M8,12H6V6h2V12z M7,4.5c-0.8,0-1.3-0.6-1.3-1.3
-						S6.4,2,7,2c0.6,0,1.3,0.6,1.3,1.3S7.8,4.5,7,4.5z"/>
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
+						x="0px" y="0px" width="14px" height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" >
+					<path d="M7,0C3.1,0,0,3.1,0,7c0,3.9,3.1,7,7,7s7-3.1,7-7C14,3.1,10.9,0,7,0z M8,12H6V6h2V12z 
+						M7,4.5c-0.8,0-1.3-0.6-1.3-1.3 S6.4,2,7,2c0.6,0,1.3,0.6,1.3,1.3S7.8,4.5,7,4.5z"/>
 					</svg>
 				</span></button>
 			</div>
@@ -273,54 +279,40 @@ function populateIconList(list) {
 		document.getElementById('bodyContent').innerHTML = '<i style="grid-column: span 3;">No icons found</i>';
 	}
 
-	document.getElementById('searchBox').onkeypress = search;
 	document.getElementById('searchBox').onchange = search;
 	document.getElementById('searchBox').onkeyup = search;
 	document.getElementById('openInfo').onclick = () => document.getElementById('info').style.display = 'block';
 	document.getElementById('closeInfo').onclick = () => document.getElementById('info').style.display = 'none';
 
-	for(let j=0; j<ids.length; j++) {
-		document.getElementById('button'+ids[j]).onclick = function() { downloadIcon(ids[j]); };
-	}
-}
-
-function search() {
-	let term = document.getElementById('searchBox').value;
-	let rows = document.querySelectorAll('.rowWrapper');
-	let rowName;
-
-	rows.forEach(row => {
-		rowName = row.getAttribute('data-search-name');
-		if(rowName.toLocaleLowerCase().includes(term.toLocaleLowerCase()) || term === '') {
-			row.style.display = 'contents';
-		} else {
-			row.style.display = 'none';
+	
+	function downloadIcon(number) {
+		// console.log(number);
+		let fileName = `${document.getElementById('name'+number).value}.svg`;
+		let fileContent = document.getElementById('icon'+number).innerHTML;
+		let file = new Blob([fileContent], {type: 'svg'});
+	
+		if (window.navigator.msSaveOrOpenBlob) // IE10+
+			window.navigator.msSaveOrOpenBlob(file, fileName);
+		else { // Others
+			let a = document.createElement("a");
+			let url = URL.createObjectURL(file);
+			a.href = url;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function() {
+				document.body.removeChild(a);
+				window.URL.revokeObjectURL(url);	
+			}, 0); 
 		}
-	});
-}
+	}
 
-function downloadIcon(number) {
-	// console.log(number);
-	let name = document.getElementById('name'+number).value;
-	let icon = document.getElementById('icon'+number).innerHTML;
-	downloadFile(name, icon);
-}
-
-function isSingleInstance(keyword, searchString) {
-	let first = searchString.indexOf(keyword);
-
-	if(first > -1) {
-		let second = searchString.indexOf(keyword, (first+1));
-		return second === -1? true : false;
-	} else {
-		return true;
+	for(let j=0; j<ids.length; j++) {
+		document.getElementById(`button${ids[j]}`).onclick = () => { downloadIcon(ids[j]); };
 	}
 }
 
-function isSVG(searchString) {
-	return searchString.indexOf('<svg') === 0;
-}
-
+let idSuffix = 1;
 function makeOneIconRow(iconSVG, nameMap) {
 	// console.log(`\n makeOneIconRow`);
 	// console.log(iconSVG);
@@ -340,7 +332,7 @@ function makeOneIconRow(iconSVG, nameMap) {
 		<div class="rowWrapper" data-search-name="${name}">
 			<div style="grid-column: 1;" class="iconPreview" id="icon${idSuffix}" title="SVG file preview">${iconSVG}</div>
 			<div style="grid-column: 2;" class="iconName">
-				<input type="text"  id="name${idSuffix}" value="${name}" title="Rename the SVG file"></input>
+				<input type="text"	id="name${idSuffix}" value="${name}" title="Rename the SVG file"></input>
 			</div>
 			<button style="grid-column: 3;" class="downloadButton" id="button${idSuffix}" title="Download the SVG file">
 				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
@@ -354,22 +346,17 @@ function makeOneIconRow(iconSVG, nameMap) {
 	return con;
 }
 
-function downloadFile(name = 'icon', fContent = '') {
-	let file = new Blob([fContent], {type: 'svg'});
-	name += '.svg';
+function search() {
+	let term = document.getElementById('searchBox').value;
+	let rows = document.querySelectorAll('.rowWrapper');
+	let rowName;
 
-	if (window.navigator.msSaveOrOpenBlob) // IE10+
-		window.navigator.msSaveOrOpenBlob(file, name);
-	else { // Others
-		let a = document.createElement("a");
-		let url = URL.createObjectURL(file);
-		a.href = url;
-		a.download = name;
-		document.body.appendChild(a);
-		a.click();
-		setTimeout(function() {
-			document.body.removeChild(a);
-			window.URL.revokeObjectURL(url);  
-		}, 0); 
-	}
+	rows.forEach(row => {
+		rowName = row.getAttribute('data-search-name');
+		if(rowName.toLocaleLowerCase().includes(term.toLocaleLowerCase()) || term === '') {
+			row.style.display = 'contents';
+		} else {
+			row.style.display = 'none';
+		}
+	});
 }

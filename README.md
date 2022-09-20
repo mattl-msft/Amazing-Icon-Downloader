@@ -1,10 +1,13 @@
 # ![logo](https://raw.githubusercontent.com/mattlag/Amazing-Icon-Downloader/master/dev/icons/icon32.png) Amazing Icon Downloader
 
-A Chrome and Edge browser extension to easily find and download 
-SVG icons from the Azure&trade; Management portal.
-
-Now supports **portal.azure.com** and **endpoint.microsoft.com**
-
+## Main features
+ - Easily view all icons on a page, works with:
+   - **portal.azure.com**
+   - **endpoint.microsoft.com**
+ - Search to filter down long lists of icons
+ - Rename and download any single icon
+ - Bulk download all icons as a .zip file
+ - Works with either Chrome or Edge
 
 ## Basically does two things:
  - When you're on portal.azure.com or endpoint.microsoft.com, it lists all the icons that are in the current view.

@@ -167,14 +167,6 @@ function getIconName(iconSVG, nameMap){
 	return name;
 }
 
-// function getIconDataByID(searchID) {
-// 	console.log(`searching for data with id: ${typeof searchID}: ${searchID}`);
-// 	for(let i=0; i<_iconData.length; i++){
-// 		console.log(`\t checking: ${typeof _iconData[i].id}: ${_iconData[i].id}`);
-// 		if(+_iconData[i].id === searchID) return _iconData[i];
-// 	}
-// 	return false;
-// }
 
 // -----------------------------------------
 // Making the icon list
@@ -211,8 +203,8 @@ function populateIconList() {
 						M7,4.5c-0.8,0-1.3-0.6-1.3-1.3 S6.4,2,7,2c0.6,0,1.3,0.6,1.3,1.3S7.8,4.5,7,4.5z"/>
 					</svg>
 				</span></button>
-				<button id="downloadAll">Download all icons</button>
-			</div>
+				</div>
+				<button id="downloadAll" class="downloadButton">Download all icons as a .zip</button>
 		`;
 
 		// Build all the rows per icon
@@ -249,7 +241,9 @@ function populateIconList() {
 	document.getElementById('openInfo').onclick = () => document.getElementById('info').style.display = 'block';
 	document.getElementById('closeInfo').onclick = () => document.getElementById('info').style.display = 'none';
 	document.getElementById('downloadAll').onclick = downloadAllIcons;
-	Array.from(document.getElementsByClassName('downloadButton')).forEach((button) => button.onclick = downloadIcon);
+	Array.from(document.getElementsByClassName('downloadButton')).forEach((button) => {
+		if(button.id !== 'downloadAll') button.onclick = downloadIcon;
+	});
 }
 
 function downloadIcon(event) {
@@ -389,14 +383,12 @@ function downloadAllIcons() {
 	const zip = new JSZip();
 	
 	const iconFolder = zip.folder("icons");
-	_iconData.forEach((data) => {
+	Object.keys(_iconData).forEach((key) => {
+		let data = _iconData[key];
 		iconFolder.file(`${data.name}.svg`, new Blob([data.svg], {type: 'svg'}));
-		zip.file(`${data.name}.svg`).async('string').then(function (content) {
-			console.log(content);
-		});
 	});
 	
 	zip.generateAsync({type:"blob"}).then(function(content) {
-			downloadFile('icons.zip', content);
+		downloadFile('icons.zip', content);
 	});
 }

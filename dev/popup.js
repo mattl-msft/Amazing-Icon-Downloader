@@ -214,7 +214,7 @@ function populateIconList() {
 				<div class="rowWrapper" data-search-name="${data.name}">
 					<div style="grid-column: 1;" class="iconPreview" title="SVG file preview">${data.svg}</div>
 					<div style="grid-column: 2;" class="iconName">
-						<input type="text" value="${data.name}" title="Rename the SVG file"></input>
+						<input type="text" value="${data.name}" class="iconNameInput" data-icon-id="${key}" title="Rename the SVG file"></input>
 					</div>
 					<button style="grid-column: 3;" class="downloadButton" onclick="downloadIcon();" data-icon-id="${key}" title="Download the SVG file">
 						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
@@ -244,6 +244,12 @@ function populateIconList() {
 	Array.from(document.getElementsByClassName('downloadButton')).forEach((button) => {
 		if(button.id !== 'downloadAll') button.onclick = downloadIcon;
 	});
+	Array.from(document.getElementsByClassName('iconNameInput')).forEach((input) => input.onkeyup = updateIconName);
+}
+
+function updateIconName(event) {
+	let id = event.srcElement.getAttribute('data-icon-id');
+	_iconData[id].name = event.srcElement.value;
 }
 
 function downloadIcon(event) {

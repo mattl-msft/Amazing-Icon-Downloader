@@ -7,19 +7,52 @@ let _iconData = [];
 
 // What to do every time the popup is opened
 document.addEventListener('DOMContentLoaded', async () => {
-	document.getElementById('bodyContent').innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
+	// console.log(`\n\nDOMContentLoaded - START`);
+	let content = document.getElementById('bodyContent');
+	content.innerHTML = '<i style="grid-column: span 3;">Getting icons...</i>';
 	
 	const tab = await getCurrentTab();
+	// console.log(`getCurrentTab results`);
 	// console.log(tab);
+	if(tab.url.startsWith('edge://') || tab.url.startsWith('chrome://')) {
+		showURLErrorMessage();
+		return;
+	}
 
 	let results = await chrome.scripting.executeScript({
 		target: {tabId: tab.id},
 		func: getIcons,
 	});
-
-	processIcons(results[0].result);
-	populateIconList(_iconData);
+	// console.log(`executeScript results`);
+	// console.log(results);
+	
+	if(results[0]?.result) {
+		results = results[0].result;
+		processIcons(results);
+		if(Object.keys(_iconData).length) {
+			populateIconList(_iconData);
+		} else {
+			content.innerHTML = '<i style="grid-column: span 3; color: darkred;">No icons found to display.</i>';
+		}
+	} else {
+		showURLErrorMessage();
+	}
 });
+
+function showURLErrorMessage(){
+	document.getElementById('bodyContent').innerHTML = `
+	<i style="grid-column: span 3; color: darkred;">
+		Amazing Icon Downloader does not work for this URL.
+		<br>
+		Currently this extension only works on:
+		<ul>
+			<li>portal.azure.com</li>
+			<li>endpoint.microsoft.com</li>
+		</ul>
+		<br>
+		Contact <a href="mailto:matt@mattlag.com">matt@mattlag.com</a> for help.
+	</i>`;
+}
 
 async function getCurrentTab() {
 	let queryOptions = { active: true, lastFocusedWindow: true };
@@ -29,10 +62,22 @@ async function getCurrentTab() {
 }
 
 function getIcons() {
+	// console.log(`\n\ngetIcons - START`);
 	let symbols = document.getElementById('FxSymbolContainer');
+	// console.log(symbols);
+
+	if(!symbols) {
+		console.warn(`Amazing Icon Downloader - No symbol library for SVG icons found.`);
+		return false;
+	}
+
 	let defs = document.getElementById('DefsContainer');
-	defs = defs.getElementsByTagName('defs')[0];
-	
+	if(defs && defs.getElementsByTagName) {
+		defs = defs.getElementsByTagName('defs');
+		if(defs && defs.length) defs = defs[0];
+	}
+	// console.log(defs);
+
 	// Make the Icon list, and find names
 	let returnElements = [];
 	let nameMap = {};
@@ -136,7 +181,7 @@ function getIcons() {
 			}
 		}
 	}
-	
+
 	// Pull out all the gradient definitions
 	let returnDefs = {};
 
@@ -172,7 +217,10 @@ function getIconName(iconSVG, nameMap){
 // Making the icon list
 // -----------------------------------------
 function processIcons(list) {
+	// console.log(`\n\nprocessIcons - START`);
 	// console.log(list);
+
+
 	let elements = list.elements;
 	let idSuffix = 0;
 	let oneSVG, oneName;

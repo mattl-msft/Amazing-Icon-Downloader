@@ -1,8 +1,8 @@
 {
 	"name": "Amazing Icon Downloader",
 	"short_name": "Amazing Icon",
-	"version": "2.0",
-	"version_name": "Version 2.0",
+	"version": "2.1",
+	"version_name": "Version 2.1",
 	"description": "Easily find and download SVG Icons from a certain cloud management portal.",
 	"author": "Matt LaGrandeur",
 	"manifest_version": 3,

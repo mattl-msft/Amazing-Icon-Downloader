@@ -65,16 +65,190 @@ async function getCurrentTab() {
 
 function getIcons() {
 	// console.log(`\n\ngetIcons - START`);
+
+	// ========================================
+	// Find icons and early return if needed
+	// ========================================
 	let symbols = document.getElementById('FxSymbolContainer');
 	// console.log(symbols);
 
-	if (!symbols) {
+	let webContainerSVG = document
+		.getElementById('web-container')
+		.querySelectorAll('svg');
+	let hardCodedSVG = [];
+	webContainerSVG.forEach((node) => {
+		if (
+			node.querySelectorAll('use').length === 0 &&
+			node.querySelectorAll('path').length !== 0 &&
+			node.querySelectorAll('[class^=azc]').length === 0 &&
+			node.id === ''
+		) {
+			hardCodedSVG.push(node);
+		}
+	});
+	// console.log(hardCodedSVG);
+
+	if (!symbols && !hardCodedSVG) {
 		console.warn(
-			`Amazing Icon Downloader - No symbol library for SVG icons found.`
+			`Amazing Icon Downloader - No symbol library or hard-coded SVG icons found.`
 		);
 		return false;
 	}
 
+	// ========================================
+	// Declared within getIcons because
+	// getIcons is inside a function wrapper
+	// ========================================
+	function getOneIcon(symbol, nameMap) {
+		/*
+		 *	GET THE NAME OF THE ICON
+		 */
+		let name = false;
+		let symbolID = symbol?.firstChild?.firstChild?.id;
+		if (!symbolID) {
+			symbolID = `generated-id-${Date.now()}`;
+			nameMap[symbolID] = 'Icon';
+		}
+
+		// Look for common icons that are known to not have title attributes
+		// if (symbol.getElementsByTagName('path').length) {
+		if (symbol.querySelector('path')) {
+			let pathData = symbol.querySelector('path').getAttribute('d');
+			if (
+				pathData ===
+				'M25.561 23.167a.562.562 0 0 1-.288-.083L6.011 12.045a.578.578 0 0 1 0-1.002L25.149.075c.182-.1.405-.1.579 0L44.994 11.12c.174.102.29.291.29.496 0 .212-.116.4-.29.504L25.853 23.084a.573.573 0 0 1-.292.083'
+			) {
+				nameMap[symbolID] = 'Resource';
+			} else if (pathData === 'M8.2 6l-5.5 5.5.6.5 6-6-6-6-.6.5z') {
+				nameMap[symbolID] = 'Chevron';
+			} else if (
+				pathData ===
+				'M-790.5 996c-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5 4.5-2 4.5-4.5-2-4.5-4.5-4.5zm.7 7.5h-1.5v-3.6h1.5v3.6zm-.7-4.4c-.5 0-.8-.4-.8-.8s.4-.8.8-.8.8.4.8.8-.3.8-.8.8z'
+			) {
+				nameMap[symbolID] = 'Info';
+			} else if (pathData.startsWith('M7,14a6.68,6.68,0,0,1-1.86-.25,7.28')) {
+				nameMap[symbolID] = 'Info';
+			} else if (
+				pathData ===
+				'M4.992 9.819l8.018-7.991v4.005H14V0H8.167v1h4.038L4.232 8.987l.76.833z'
+			) {
+				nameMap[symbolID] = 'Link';
+			} else if (
+				pathData ===
+				'M8.7 7.9l7.1 7.1-.8.8-7.1-7.1-7.1 7.1L0 15l7.1-7.1L0 .8.8 0l7.1 7.1L15 0l.8.8z'
+			) {
+				nameMap[symbolID] = 'Close';
+			} else if (pathData === 'M0 3h18v1H0zm0 5h18v1H0zm0 5h18v1H0z') {
+				nameMap[symbolID] = 'Hamburger';
+			} else if (
+				pathData ===
+				'M22.83 4.372a20.662 20.662 0 0 0-13.953 7.579 20.672 20.672 0 0 0-4.508 15.227 20.668 20.668 0 0 0 7.581 13.949c4.134 3.346 9.52 5.109 15.222 4.509 5.705-.601 10.606-3.451 13.955-7.581 3.34-4.132 5.106-9.519 4.505-15.225-.608-5.751-3.528-10.669-7.724-14.064-3.531-2.859-8.032-4.51-12.856-4.51-.733 0-1.474.038-2.222.116'
+			) {
+				nameMap[symbolID] = 'Recent';
+			} else if (
+				pathData ===
+				'M12.354 5.353l.896-.897.29.29-.897.896zm1.576 3.524h1.268v.409H13.93zm-1.634 3.876l.289-.29.896.897-.289.29zM8.71 14.077h.409v1.268H8.71zM4.249 4.704l.289-.29.897.897-.29.29zm.061 8.693l.896-.897.29.29-.897.896zm-1.757-4.52h1.268v.409H2.553zm9.419 2.483L9.821 9.209a.518.518 0 0 0-.351-.148.507.507 0 0 0 .065-.238V3.348a.522.522 0 0 0-.52-.521h-.1a.522.522 0 0 0-.521.521v5.475a.522.522 0 0 0 .521.521h.058a.514.514 0 0 0 .042.67l2.151 2.151a.521.521 0 0 0 .735 0l.07-.07a.521.521 0 0 0 .001-.735z'
+			) {
+				nameMap[symbolID] = 'Recent';
+			} else if (
+				pathData ===
+				'M14.9 10.4l.4.4.4.5a1.4 1.4 0 0 1 .2.6 1.3 1.3 0 0 1 .1.6 3.6 3.6 0 0 1-.2 1 3.5 3.5 0 0 1-.5.8l-.8.5-1 .2a2 2 0 0 1-1.3-.4 5.4 5.4 0 0 1-2 1A5.4 5.4 0 0 1 8 16a5.7 5.7 0 0 1-2.2-.4 5.4 5.4 0 0 1-2-1 2 2 0 0 1-1.3.4l-1-.2-.8-.5a3.5 3.5 0 0 1-.5-.8 3.6 3.6 0 0 1-.2-1 1.3 1.3 0 0 1 .1-.6 1.4 1.4 0 0 1 .2-.6l.4-.5c.1-.2.3-.3.4-.4a1.7 1.7 0 0 0-.1-.7V9a7.6 7.6 0 0 1 .3-2.1A6.6 6.6 0 0 1 2.2 5l1.5-1.5a5.2 5.2 0 0 1 1.8-1 3 3 0 0 1 .2-1 2.2 2.2 0 0 1 .5-.8L7 .2 8 0l1 .2.8.5a2.2 2.2 0 0 1 .5.8 3 3 0 0 1 .2 1 5.2 5.2 0 0 1 1.8 1L13.8 5a6.6 6.6 0 0 1 .9 1.9A7.6 7.6 0 0 1 15 9v.7a1.7 1.7 0 0 0-.1.7zM1 12.5a1.3 1.3 0 0 0 .1.6l.3.5.5.3h1.2l.5-.3.3-.5a1.3 1.3 0 0 0 .1-.6 1.3 1.3 0 0 0-.1-.6l-.3-.5-.5-.3H1.9l-.5.3-.3.5a1.3 1.3 0 0 0-.1.6zM8 15a5.7 5.7 0 0 0 1.8-.3 4.8 4.8 0 0 0 1.6-.8l-.3-.7a1.5 1.5 0 0 1-.1-.7 3.6 3.6 0 0 1 .2-1 3.5 3.5 0 0 1 .5-.8l.8-.5 1-.2h.4a3.4 3.4 0 0 0 .1-1 5.7 5.7 0 0 0-.3-1.8 4.1 4.1 0 0 0-.7-1.5 4.9 4.9 0 0 0-1.2-1.3 3.8 3.8 0 0 0-1.5-.9l-.4.6c-.1.2-.3.3-.5.5l-.7.3H7.3l-.7-.3-.5-.5-.4-.6a3.8 3.8 0 0 0-1.5.9A4.9 4.9 0 0 0 3 5.7a5.1 5.1 0 0 0-.7 1.5A5.7 5.7 0 0 0 2 9a3.4 3.4 0 0 0 .1 1h1.1l.9.5a2.7 2.7 0 0 1 .7.8 4.3 4.3 0 0 1 .2 1.2 1.5 1.5 0 0 1-.1.7l-.3.7a4.8 4.8 0 0 0 1.6.8A5.7 5.7 0 0 0 8 15zM8 1h-.6l-.5.3-.3.5a1.3 1.3 0 0 0-.1.6 1.3 1.3 0 0 0 .1.6l.3.5.5.3h1.2l.5-.3.3-.5a1.3 1.3 0 0 0 .1-.6 1.3 1.3 0 0 0-.1-.6l-.3-.5-.5-.3zm5.5 13h.6l.5-.3.3-.5a1.3 1.3 0 0 0 .1-.6 1.3 1.3 0 0 0-.1-.6l-.3-.5-.5-.3h-1.2l-.5.3-.3.5a1.3 1.3 0 0 0-.1.6 1.3 1.3 0 0 0 .1.6l.3.5.5.3z'
+			) {
+				nameMap[symbolID] = 'Share';
+			} else if (
+				pathData ===
+				'M3.578 0a1.766 1.766 0 0 0-.744.166A2.153 2.153 0 0 0 2.217.6a2.13 2.13 0 0 0-.433.621 1.762 1.762 0 0 0-.165.739V4H0v1.418h1.619v6.589H0v1.415h1.619v2.044a1.893 1.893 0 0 0 .154.762 1.969 1.969 0 0 0 .42.623 1.944 1.944 0 0 0 .625.421 1.91 1.91 0 0 0 .75.152h7.459v-1.415H6.485V1.416h9.13v6h1.415V0zm1.5 16.009H3.7a.645.645 0 0 1-.26-.051.686.686 0 0 1-.212-.144.711.711 0 0 1-.145-.214 1.861 1.861 0 0 1-.047-.387v-1.791h.7v-1.415h-.7V5.418h.7V4h-.7V2.084a.493.493 0 0 1 .054-.22.88.88 0 0 1 .39-.391.5.5 0 0 1 .22-.057h1.382z'
+			) {
+				nameMap[symbolID] = 'Directory + Subscription';
+			} else if (
+				pathData ===
+				'M8.267 8H.733c-.6 0-.916-.623-.62-1.129L2.014 3.53 3.896.384c.302-.507.903-.514 1.197-.008L7.001 3.65l1.882 3.229C9.183 7.383 8.881 8 8.267 8z'
+			) {
+				nameMap[symbolID] = 'Warning';
+			} else if (pathData === 'M11 3.9l-.7-.8L6 7.4 1.7 3.1l-.7.8 5 5z') {
+				nameMap[symbolID] = 'Chevron down';
+			} else if (pathData === 'M7 0h1v16H7z') {
+				nameMap[symbolID] = 'Pipe';
+			} else if (pathData === 'M1 8.1l.7.8L6 4.6l4.3 4.3.7-.8-5-5z') {
+				nameMap[symbolID] = 'Chevron up';
+			} else if (pathData === 'M4 3.7l-4 4 .7.7L4 5l3.3 3.4.7-.7-4-4z') {
+				nameMap[symbolID] = 'Double chevron up';
+			}
+		}
+
+		// Look for icon name based on DOM tree
+		if (!nameMap[symbolID]) {
+			let query = '[href="#' + symbolID + '"]';
+			let nameElement = document.querySelector(query);
+			if (nameElement) {
+				// Home > Recent
+				if (
+					nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
+						'.fxs-home-recent-typename'
+					)
+				) {
+					name =
+						nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
+							'.fxs-home-recent-typename'
+						).innerText;
+					// console.log(`Special case name found for Home>Recent is ${name}`);
+				}
+
+				// TOC nav
+				if (
+					nameElement.parentNode.parentNode.parentNode.querySelector(
+						'.ext-fxc-menu-listView-item'
+					)
+				) {
+					name = nameElement.parentNode.parentNode.parentNode.querySelector(
+						'.ext-fxc-menu-listView-item'
+					).innerText;
+					// console.log(`Special case name found for TOC is ${name}`);
+				}
+
+				// All services list
+				if (
+					nameElement.parentNode.parentNode.parentNode.querySelector(
+						'.fxs-sidebar-label'
+					) &&
+					nameElement.parentNode.parentNode.parentNode.querySelector(
+						'.fxs-sidebar-label'
+					).children[0]
+				) {
+					name =
+						nameElement.parentNode.parentNode.parentNode.querySelector(
+							'.fxs-sidebar-label'
+						).children[0].innerText;
+					// console.log(`Special case name found for All Services is ${name}`);
+				}
+
+				// SVG Title node in grid views
+				if (nameElement.parentNode.getElementsByTagName('title').length) {
+					name =
+						nameElement.parentNode.getElementsByTagName('title')[0].textContent;
+					// console.log(`Special case name found for SVG Title is ${name}`);
+				}
+
+				// generic title attributes
+				if (nameElement && nameElement.title) name = nameElement.title;
+				else if (nameElement.parentNode.title)
+					name = nameElement.parentNode.title;
+				else if (nameElement.parentNode.parentNode.title)
+					name = nameElement.parentNode.parentNode.title;
+				else if (nameElement.parentNode.parentNode.parentNode.title)
+					name = nameElement.parentNode.parentNode.parentNode.title;
+				else if (nameElement.parentNode.parentNode.parentNode.parentNode.title)
+					name = nameElement.parentNode.parentNode.parentNode.parentNode.title;
+			}
+
+			if (name) nameMap[symbolID] = name;
+			// console.log(`Getting name for symbol ${symbolID} returned ${name}`);
+		}
+	}
+
+	// ========================================
+	// Process definitions
+	// ========================================
 	let defs = document.getElementById('DefsContainer');
 	if (defs && defs.getElementsByTagName) {
 		defs = defs.getElementsByTagName('defs');
@@ -82,169 +256,63 @@ function getIcons() {
 	}
 	// console.log(defs);
 
+	// ========================================
 	// Make the Icon list, and find names
+	// ========================================
 	let returnElements = [];
 	let nameMap = {};
 
-	if (symbols) {
-		let nameElement;
-		let symbol;
-		let symbolID;
-		let name;
-		let query;
-
-		for (let e = 0; e < symbols.children.length; e++) {
-			/*
-			 *	ADD THE ICON TO THE LIST
-			 */
-			symbol = symbols.children[e];
-			returnElements.push(symbol.outerHTML);
-
-			/*
-			 *	GET THE NAME OF THE ICON
-			 */
-			name = false;
-			symbolID = symbol.firstChild.firstChild.id;
-
-			// Look for common icons that are known to not have title attributes
-			if (symbol.getElementsByTagName('path').length) {
-				let pathData = symbol.getElementsByTagName('path')[0].getAttribute('d');
-				if (
-					pathData ===
-					'M25.561 23.167a.562.562 0 0 1-.288-.083L6.011 12.045a.578.578 0 0 1 0-1.002L25.149.075c.182-.1.405-.1.579 0L44.994 11.12c.174.102.29.291.29.496 0 .212-.116.4-.29.504L25.853 23.084a.573.573 0 0 1-.292.083'
-				) {
-					nameMap[symbolID] = 'Resource';
-				} else if (pathData === 'M8.2 6l-5.5 5.5.6.5 6-6-6-6-.6.5z') {
-					nameMap[symbolID] = 'Chevron';
-				} else if (
-					pathData ===
-					'M-790.5 996c-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5 4.5-2 4.5-4.5-2-4.5-4.5-4.5zm.7 7.5h-1.5v-3.6h1.5v3.6zm-.7-4.4c-.5 0-.8-.4-.8-.8s.4-.8.8-.8.8.4.8.8-.3.8-.8.8z'
-				) {
-					nameMap[symbolID] = 'Info';
-				} else if (
-					pathData ===
-					'M4.992 9.819l8.018-7.991v4.005H14V0H8.167v1h4.038L4.232 8.987l.76.833z'
-				) {
-					nameMap[symbolID] = 'Link';
-				} else if (
-					pathData ===
-					'M8.7 7.9l7.1 7.1-.8.8-7.1-7.1-7.1 7.1L0 15l7.1-7.1L0 .8.8 0l7.1 7.1L15 0l.8.8z'
-				) {
-					nameMap[symbolID] = 'Close';
-				} else if (pathData === 'M0 3h18v1H0zm0 5h18v1H0zm0 5h18v1H0z') {
-					nameMap[symbolID] = 'Hamburger';
-				} else if (
-					pathData ===
-					'M22.83 4.372a20.662 20.662 0 0 0-13.953 7.579 20.672 20.672 0 0 0-4.508 15.227 20.668 20.668 0 0 0 7.581 13.949c4.134 3.346 9.52 5.109 15.222 4.509 5.705-.601 10.606-3.451 13.955-7.581 3.34-4.132 5.106-9.519 4.505-15.225-.608-5.751-3.528-10.669-7.724-14.064-3.531-2.859-8.032-4.51-12.856-4.51-.733 0-1.474.038-2.222.116'
-				) {
-					nameMap[symbolID] = 'Recent';
-				} else if (
-					pathData ===
-					'M12.354 5.353l.896-.897.29.29-.897.896zm1.576 3.524h1.268v.409H13.93zm-1.634 3.876l.289-.29.896.897-.289.29zM8.71 14.077h.409v1.268H8.71zM4.249 4.704l.289-.29.897.897-.29.29zm.061 8.693l.896-.897.29.29-.897.896zm-1.757-4.52h1.268v.409H2.553zm9.419 2.483L9.821 9.209a.518.518 0 0 0-.351-.148.507.507 0 0 0 .065-.238V3.348a.522.522 0 0 0-.52-.521h-.1a.522.522 0 0 0-.521.521v5.475a.522.522 0 0 0 .521.521h.058a.514.514 0 0 0 .042.67l2.151 2.151a.521.521 0 0 0 .735 0l.07-.07a.521.521 0 0 0 .001-.735z'
-				) {
-					nameMap[symbolID] = 'Recent';
-				} else if (
-					pathData ===
-					'M14.9 10.4l.4.4.4.5a1.4 1.4 0 0 1 .2.6 1.3 1.3 0 0 1 .1.6 3.6 3.6 0 0 1-.2 1 3.5 3.5 0 0 1-.5.8l-.8.5-1 .2a2 2 0 0 1-1.3-.4 5.4 5.4 0 0 1-2 1A5.4 5.4 0 0 1 8 16a5.7 5.7 0 0 1-2.2-.4 5.4 5.4 0 0 1-2-1 2 2 0 0 1-1.3.4l-1-.2-.8-.5a3.5 3.5 0 0 1-.5-.8 3.6 3.6 0 0 1-.2-1 1.3 1.3 0 0 1 .1-.6 1.4 1.4 0 0 1 .2-.6l.4-.5c.1-.2.3-.3.4-.4a1.7 1.7 0 0 0-.1-.7V9a7.6 7.6 0 0 1 .3-2.1A6.6 6.6 0 0 1 2.2 5l1.5-1.5a5.2 5.2 0 0 1 1.8-1 3 3 0 0 1 .2-1 2.2 2.2 0 0 1 .5-.8L7 .2 8 0l1 .2.8.5a2.2 2.2 0 0 1 .5.8 3 3 0 0 1 .2 1 5.2 5.2 0 0 1 1.8 1L13.8 5a6.6 6.6 0 0 1 .9 1.9A7.6 7.6 0 0 1 15 9v.7a1.7 1.7 0 0 0-.1.7zM1 12.5a1.3 1.3 0 0 0 .1.6l.3.5.5.3h1.2l.5-.3.3-.5a1.3 1.3 0 0 0 .1-.6 1.3 1.3 0 0 0-.1-.6l-.3-.5-.5-.3H1.9l-.5.3-.3.5a1.3 1.3 0 0 0-.1.6zM8 15a5.7 5.7 0 0 0 1.8-.3 4.8 4.8 0 0 0 1.6-.8l-.3-.7a1.5 1.5 0 0 1-.1-.7 3.6 3.6 0 0 1 .2-1 3.5 3.5 0 0 1 .5-.8l.8-.5 1-.2h.4a3.4 3.4 0 0 0 .1-1 5.7 5.7 0 0 0-.3-1.8 4.1 4.1 0 0 0-.7-1.5 4.9 4.9 0 0 0-1.2-1.3 3.8 3.8 0 0 0-1.5-.9l-.4.6c-.1.2-.3.3-.5.5l-.7.3H7.3l-.7-.3-.5-.5-.4-.6a3.8 3.8 0 0 0-1.5.9A4.9 4.9 0 0 0 3 5.7a5.1 5.1 0 0 0-.7 1.5A5.7 5.7 0 0 0 2 9a3.4 3.4 0 0 0 .1 1h1.1l.9.5a2.7 2.7 0 0 1 .7.8 4.3 4.3 0 0 1 .2 1.2 1.5 1.5 0 0 1-.1.7l-.3.7a4.8 4.8 0 0 0 1.6.8A5.7 5.7 0 0 0 8 15zM8 1h-.6l-.5.3-.3.5a1.3 1.3 0 0 0-.1.6 1.3 1.3 0 0 0 .1.6l.3.5.5.3h1.2l.5-.3.3-.5a1.3 1.3 0 0 0 .1-.6 1.3 1.3 0 0 0-.1-.6l-.3-.5-.5-.3zm5.5 13h.6l.5-.3.3-.5a1.3 1.3 0 0 0 .1-.6 1.3 1.3 0 0 0-.1-.6l-.3-.5-.5-.3h-1.2l-.5.3-.3.5a1.3 1.3 0 0 0-.1.6 1.3 1.3 0 0 0 .1.6l.3.5.5.3z'
-				) {
-					nameMap[symbolID] = 'Share';
-				} else if (
-					pathData ===
-					'M3.578 0a1.766 1.766 0 0 0-.744.166A2.153 2.153 0 0 0 2.217.6a2.13 2.13 0 0 0-.433.621 1.762 1.762 0 0 0-.165.739V4H0v1.418h1.619v6.589H0v1.415h1.619v2.044a1.893 1.893 0 0 0 .154.762 1.969 1.969 0 0 0 .42.623 1.944 1.944 0 0 0 .625.421 1.91 1.91 0 0 0 .75.152h7.459v-1.415H6.485V1.416h9.13v6h1.415V0zm1.5 16.009H3.7a.645.645 0 0 1-.26-.051.686.686 0 0 1-.212-.144.711.711 0 0 1-.145-.214 1.861 1.861 0 0 1-.047-.387v-1.791h.7v-1.415h-.7V5.418h.7V4h-.7V2.084a.493.493 0 0 1 .054-.22.88.88 0 0 1 .39-.391.5.5 0 0 1 .22-.057h1.382z'
-				) {
-					nameMap[symbolID] = 'Directory + Subscription';
-				} else if (
-					pathData ===
-					'M8.267 8H.733c-.6 0-.916-.623-.62-1.129L2.014 3.53 3.896.384c.302-.507.903-.514 1.197-.008L7.001 3.65l1.882 3.229C9.183 7.383 8.881 8 8.267 8z'
-				) {
-					nameMap[symbolID] = 'Warning';
-				} else if (pathData === 'M11 3.9l-.7-.8L6 7.4 1.7 3.1l-.7.8 5 5z') {
-					nameMap[symbolID] = 'Chevron down';
-				} else if (pathData === 'M7 0h1v16H7z') {
-					nameMap[symbolID] = 'Pipe';
-				} else if (pathData === 'M1 8.1l.7.8L6 4.6l4.3 4.3.7-.8-5-5z') {
-					nameMap[symbolID] = 'Chevron up';
-				} else if (pathData === 'M4 3.7l-4 4 .7.7L4 5l3.3 3.4.7-.7-4-4z') {
-					nameMap[symbolID] = 'Double chevron up';
-				}
+	// Get hard-coded SVG from the page
+	let hasInfoIcon = false;
+	let hasSortIcon = false;
+	if (hardCodedSVG) {
+		// console.log('getOneIcon for hardCodedSVG');
+		for (let j = 0; j < hardCodedSVG.length; j++) {
+			let blocked = false;
+			let svg = hardCodedSVG[j];
+			// console.log(svg);
+			let firstPathD = svg.querySelector('path').getAttribute('d');
+			if (firstPathD) {
 			}
+			if (
+				!hasInfoIcon &&
+				firstPathD.startsWith('M7,14a6.68,6.68,0,0,1-1.86-.25,7.28')
+			) {
+				hasInfoIcon = true;
+				returnElements.push(svg.outerHTML);
+				getOneIcon(svg, nameMap);
+			} else blocked = true;
 
-			// Look for icon name based on DOM tree
-			if (!nameMap[symbolID]) {
-				query = '[href="#' + symbolID + '"]';
-				nameElement = document.querySelector(query);
-				if (nameElement) {
-					// Home > Recent
-					if (
-						nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
-							'.fxs-home-recent-typename'
-						)
-					) {
-						name =
-							nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
-								'.fxs-home-recent-typename'
-							).innerText;
-						// console.log(`Special case name found for Home>Recent is ${name}`);
-					}
+			if (
+				!hasSortIcon &&
+				firstPathD.startsWith('m15.359 9.478-6.226-6.21v17.557H7.426V')
+			) {
+				hasSortIcon = true;
+				returnElements.push(svg.outerHTML);
+				getOneIcon(svg, nameMap);
+			} else blocked = true;
 
-					// TOC nav
-					if (
-						nameElement.parentNode.parentNode.parentNode.querySelector(
-							'.ext-fxc-menu-listView-item'
-						)
-					) {
-						name = nameElement.parentNode.parentNode.parentNode.querySelector(
-							'.ext-fxc-menu-listView-item'
-						).innerText;
-						// console.log(`Special case name found for TOC is ${name}`);
-					}
-
-					// All services list
-					if (
-						nameElement.parentNode.parentNode.parentNode.querySelector(
-							'.fxs-sidebar-label'
-						) &&
-						nameElement.parentNode.parentNode.parentNode.querySelector(
-							'.fxs-sidebar-label'
-						).children[0]
-					) {
-						name =
-							nameElement.parentNode.parentNode.parentNode.querySelector(
-								'.fxs-sidebar-label'
-							).children[0].innerText;
-						// console.log(`Special case name found for All Services is ${name}`);
-					}
-
-					// SVG Title node in grid views
-					if (nameElement.parentNode.getElementsByTagName('title').length) {
-						name =
-							nameElement.parentNode.getElementsByTagName('title')[0]
-								.textContent;
-						// console.log(`Special case name found for SVG Title is ${name}`);
-					}
-
-					// generic title attributes
-					if (nameElement && nameElement.title) name = nameElement.title;
-					else if (nameElement.parentNode.title)
-						name = nameElement.parentNode.title;
-					else if (nameElement.parentNode.parentNode.title)
-						name = nameElement.parentNode.parentNode.title;
-					else if (nameElement.parentNode.parentNode.parentNode.title)
-						name = nameElement.parentNode.parentNode.parentNode.title;
-					else if (
-						nameElement.parentNode.parentNode.parentNode.parentNode.title
-					)
-						name =
-							nameElement.parentNode.parentNode.parentNode.parentNode.title;
-				}
-
-				if (name) nameMap[symbolID] = name;
-				// console.log(`Getting name for symbol ${symbolID} returned ${name}`);
+			if (!blocked) {
+				returnElements.push(svg.outerHTML);
+				getOneIcon(svg, nameMap);
 			}
 		}
 	}
 
+	// Get SVG from the Symbols Library
+	if (symbols) {
+		// console.log('getOneIcon for symbols');
+		for (let i = 0; i < symbols.children.length; i++) {
+			let symbol = symbols.children[i];
+			// console.log(symbol);
+			returnElements.push(symbol.outerHTML);
+			getOneIcon(symbol, nameMap);
+		}
+	}
+
+	// ========================================
 	// Pull out all the gradient definitions
+	// ========================================
 	let returnDefs = {};
 
 	if (defs) {
@@ -258,18 +326,21 @@ function getIcons() {
 		}
 	}
 
+	// ========================================
+	// Finish up
+	// ========================================
 	let result = { elements: returnElements, names: nameMap, defs: returnDefs };
+	// console.log(result);
 	return result;
 }
 
 function getIconName(iconSVG, nameMap) {
 	let findID = document.createElement('div');
 	findID.innerHTML = iconSVG;
-	let elemID = findID.getElementsByTagName('svg') || 'name';
-	if (elemID[0] && elemID[0].id) elemID = elemID[0].id;
-
+	let elemID = findID.querySelector('svg')?.id || 'Icon';
 	let name = nameMap[elemID];
 	if (!name) name = elemID;
+	// if (name.startsWith('[object')) name = 'Icon';
 
 	return name;
 }
@@ -411,7 +482,7 @@ function downloadFileFromDataURL(fileName, dataURL) {
 	let link = document.createElement('a');
 	link.setAttribute('href', dataURL);
 	link.setAttribute('download', fileName);
-	console.log(link);
+	// console.log(link);
 	link.click();
 }
 
@@ -540,7 +611,7 @@ function toggleDownloadType() {
 
 function downloadAllIcons() {
 	const button = document.getElementById('downloadAllButton');
-	button.innerHTML = 'Downloading...'
+	button.innerHTML = 'Downloading...';
 
 	window.setTimeout(async () => {
 		const zip = new JSZip();
@@ -548,12 +619,15 @@ function downloadAllIcons() {
 		const dataURLHeaderLength = 'data:image/png;base64,'.length;
 		for (key of Object.keys(_iconData)) {
 			let data = _iconData[key];
-			iconFolder.file(`${data.name}.svg`, new Blob([data.svg], { type: 'svg' }));
+			iconFolder.file(
+				`${data.name}.svg`,
+				new Blob([data.svg], { type: 'svg' })
+			);
 			let base64Data = await convertSVGToPNG(data.svg);
 			base64Data = base64Data.slice(dataURLHeaderLength);
 			iconFolder.file(`${data.name}.png`, base64Data, { base64: true });
 		}
-		
+
 		zip.generateAsync({ type: 'blob' }).then(function (content) {
 			downloadFileFromBlob('icons.zip', content);
 			button.innerHTML = 'Download all icons as a .zip';

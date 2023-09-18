@@ -18,3 +18,16 @@
 ## Download the extension
 Visit the [Chrome Web Store](https://chrome.google.com/webstore/detail/amazing-icon-downloader/kllljifcjfleikiipbkdcgllbllahaob/)
  in either Edge or Chrome to add the extension.
+
+## Recent change history
+
+#### Version 2.1 (September 2023)
+ * Download individual icons as `.png`, and `.png`s also included in `.zip` downloads.
+ * Better support for 'hard coded' svg icons that are not part of the site's icon library.
+
+#### Version 2.0 (September 2022)
+* Download all icons as `.zip`
+* Better error handling / display unsupported sites to user
+* Migrate to Manifest v3
+
+#### For more history see the [releases page](https://github.com/mattl-msft/Amazing-Icon-Downloader/releases).

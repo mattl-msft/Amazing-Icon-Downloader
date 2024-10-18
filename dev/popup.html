@@ -15,11 +15,12 @@
 				--accent-90: hsla(210, 90%, 40%, 90%);
 				--purple: hsl(298, 83%, 32%);
 				--orange: hsl(31, 100%, 50%);
-				--bg-color: rgb(250,250,250);
+				--bg-color: rgb(250, 250, 250);
 				--fade: 200ms;
 			}
 
-			html, body {
+			html,
+			body {
 				width: 400px;
 				background-color: var(--bg-color);
 			}
@@ -39,7 +40,7 @@
 				height: 72px;
 				padding: 16px 0px 10px 20px;
 				background: linear-gradient(hsl(210, 90%, 50%), hsl(210, 90%, 40%));
-				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
+				box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.16);
 			}
 
 			#bodyContent {
@@ -53,7 +54,7 @@
 				margin-bottom: 15px;
 				column-gap: 10px;
 			}
-			
+
 			.secondRow {
 				width: 360px;
 				display: grid;
@@ -109,7 +110,7 @@
 				opacity: 1;
 				color: white;
 				background-color: var(--accent);
-				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
+				box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.16);
 				cursor: pointer;
 				transition: all var(--fade) ease-in-out;
 			}
@@ -123,7 +124,7 @@
 				text-align: right;
 				font-size: 12px;
 			}
-			
+
 			/*
 				Info popup
 			*/
@@ -145,7 +146,7 @@
 				position: absolute;
 				top: 72px;
 				background-color: white;
-				box-shadow: 0 8px 16px 0 rgba(0,0,0,.16);
+				box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.16);
 				border-bottom: 1px solid #ccc;
 				transition: opacity 200ms ease-in-out;
 			}
@@ -160,7 +161,7 @@
 				font-size: 14px;
 				margin-bottom: 10px;
 			}
-			
+
 			/*
 				Fancy Button
 			*/
@@ -169,7 +170,8 @@
 				color: var(--accent-80);
 				border: 0;
 				border-radius: 4px;
-				background-image: linear-gradient(315deg,
+				background-image: linear-gradient(
+					315deg,
 					var(--purple),
 					var(--purple),
 					var(--accent),
@@ -196,18 +198,22 @@
 				fill: var(--accent-80);
 				transition: all var(--fade) ease-in-out;
 			}
-			
+
 			.fancyButton:hover,
 			.fancyButton:focus {
 				color: white;
 				cursor: pointer;
-				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
+				box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.16);
 				transition: all var(--fade) ease-in-out;
 			}
 
-			@keyframes disco { 
-				0%{background-position:0% 0%}
-				100%{background-position:100% 100%}
+			@keyframes disco {
+				0% {
+					background-position: 0% 0%;
+				}
+				100% {
+					background-position: 100% 100%;
+				}
 			}
 
 			.fancyButton:hover span,
@@ -236,7 +242,7 @@
 			}
 
 			.downloadButton {
-				opacity: 0.50;
+				opacity: 0.5;
 				border: 1px solid var(--accent);
 				border-radius: 4px;
 				color: var(--accent);
@@ -251,7 +257,7 @@
 				background-color: var(--accent);
 				color: white;
 				fill: white;
-				box-shadow: -2px 2px 4px 0 rgba(0,0,0,.16);
+				box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.16);
 				cursor: pointer;
 			}
 
@@ -266,7 +272,7 @@
 			}
 
 			.iconName input {
-				border: 1px solid #EEE;
+				border: 1px solid #eee;
 			}
 
 			#searchBox:focus,
@@ -279,51 +285,58 @@
 			}
 
 			.iconName input:hover {
-				border-color: #BBB;
+				border-color: #bbb;
 			}
-
 		</style>
 	</head>
 	<body>
-		<div id="top"><img src="icons/logo.svg"/></div>
+		<div id="top"><img src="icons/logo.svg" /></div>
 		<div id="bodyContent"></div>
 		<div id="info">
 			<div class="firstRow">
 				<h2>Howdy!</h2>
-				<button id="closeInfo" class="fancyButton"><span>
-					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
-						x="0px" y="0px" width="14px" height="14px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;">
-						<polygon points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "/>
-					</svg>
-				</span></button>
+				<button id="closeInfo" class="fancyButton">
+					<span>
+						<svg
+							version="1.1"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+							xml:space="preserve"
+							x="0px"
+							y="0px"
+							width="14px"
+							height="14px"
+							viewBox="0 0 14 14"
+							style="enable-background: new 0 0 14 14"
+						>
+							<polygon
+								points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "
+							/>
+						</svg>
+					</span>
+				</button>
 			</div>
 			<p>
-				This tool works by scraping SVG code from 
-				certain parts of the Azure&trade; Management Portal's 
-				HTML code. You may see icons in the downloader that 
-				aren't visible on the page, and, you may see icons 
-				on the page that aren't shown in the downloader. 
-				Not quite perfect.
+				This tool works by scraping SVG code from certain parts of the
+				Azure&trade; Management Portal's HTML code. You may see icons in the
+				downloader that aren't visible on the page, and, you may see icons on
+				the page that aren't shown in the downloader. Not quite perfect.
 			</p>
 			<p>
-				Names of the icons are guessed based on HTML stuff 
-				(labels, titles) that are found 'close' to the icon. 
-				Again, an imperfect system.
+				Names of the icons are guessed based on HTML stuff (labels, titles) that
+				are found 'close' to the icon. Again, an imperfect system.
 			</p>
+			<p>But mostly it works pretty well&emsp;&macr;\_(&#x30c4;)_/&macr;</p>
 			<p>
-				But mostly it works pretty well&emsp;&macr;\_(&#x30c4;)_/&macr;
-			</p>
-			<p>
-				<i>Amazing Icon Downloader: Version 2.1 (September 2023)</i>
+				<i>Amazing Icon Downloader: Version 2.2 (October 2024)</i>
 			</p>
 
-			<br>
+			<br />
 			<h2>Contact</h2>
 			<p>
-				Any issues, comments, or feature requests can be directed at 
+				Any issues, comments, or feature requests can be directed at
 				<a href="mailto:matt@mattlag.com">matt@mattlag.com</a>.
 			</p>
-
 		</div>
 	</body>
 </html>

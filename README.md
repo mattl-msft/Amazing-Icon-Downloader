@@ -21,6 +21,9 @@ Visit the [Chrome Web Store](https://chrome.google.com/webstore/detail/amazing-i
 
 ## Recent change history
 
+#### Version 2.2 (October 2024)
+ * Some SVG icons could not be converted to PNG format, and were causing individual and `.zip` folder downloads to fail. These PNG conversions are now skipped so they don't cause the overall process to stop. An alert is shown listing which PNGs could not be downloaded.
+
 #### Version 2.1 (September 2023)
  * Download individual icons as `.png`, and `.png`s also included in `.zip` downloads.
  * Better support for 'hard coded' svg icons that are not part of the site's icon library.

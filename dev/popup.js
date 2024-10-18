@@ -461,19 +461,25 @@ async function downloadIcon(event) {
 	let data = _iconData[id];
 	if (iconDownloadMode === 'png') {
 		const dataURL = await convertSVGToPNG(data.svg);
-		downloadFileFromDataURL(`${data.name}.png`, dataURL);
+		if (dataURL !== false) {
+			downloadFileFromDataURL(`${data.name}.png`, dataURL);
+		} else {
+			alert(`Failed to convert SVG to PNG for: ${data.name}`);
+		}
 	} else {
 		downloadFileFromBlob(`${data.name}.svg`, data.svg);
 	}
 }
 
 function downloadFileFromBlob(fileName, fileContent) {
+	// console.log('downloadFileFromBlob', fileName);
 	let file = new Blob([fileContent], { type: `image/svg` });
 	let url = URL.createObjectURL(file);
 	downloadFileFromDataURL(fileName, url);
 }
 
 function downloadFileFromDataURL(fileName, dataURL) {
+	// console.log('downloadFileFromURL', fileName);
 	let link = document.createElement('a');
 	link.setAttribute('href', dataURL);
 	link.setAttribute('download', fileName);
@@ -612,36 +618,66 @@ function downloadAllIcons() {
 		const zip = new JSZip();
 		const iconFolder = zip.folder('icons');
 		const dataURLHeaderLength = 'data:image/png;base64,'.length;
+		const pngFailures = [];
 		for (key of Object.keys(_iconData)) {
 			let data = _iconData[key];
+			// console.log(`\n\n${key} - ${data.name}`);
+			// console.log(data.svg);
 			iconFolder.file(
 				`${data.name}.svg`,
 				new Blob([data.svg], { type: 'svg' })
 			);
 			let base64Data = await convertSVGToPNG(data.svg);
-			base64Data = base64Data.slice(dataURLHeaderLength);
-			iconFolder.file(`${data.name}.png`, base64Data, { base64: true });
+			if (base64Data !== false) {
+				base64Data = base64Data.slice(dataURLHeaderLength);
+				// console.log(base64Data);
+				iconFolder.file(`${data.name}.png`, base64Data, { base64: true });
+			} else {
+				pngFailures.push(data.name);
+			}
 		}
 
 		zip.generateAsync({ type: 'blob' }).then(function (content) {
 			downloadFileFromBlob('icons.zip', content);
 			button.innerHTML = 'Download all icons as a .zip';
 		});
+
+		if (pngFailures.length > 0) {
+			alert(`All icons were downloaded successfully as SVG. However, the following icons could not be converted to PNG:\n
+${pngFailures.join('\n')}`);
+		}
 	}, 100);
 }
 
 async function convertSVGToPNG(svg) {
-	const workingCanvas = document.createElement('canvas');
-	workingCanvas.height = 1000;
-	workingCanvas.width = 1000;
-	const ctx = workingCanvas.getContext('2d');
+	// console.log('convertSVGToPNG');
 
-	const workingImage = new Image();
-	workingImage.src = 'data:image/svg+xml; charset=utf8, ';
-	workingImage.src += encodeURIComponent(svg);
-	await workingImage.decode();
+	// let urlLength = ' fill="url(#03ee96cd-18f2-4dee-a5c2-e3be9a7fd022)"'.length;
+	// while(svg.indexOf(' fill="url(#') > -1) {
+	// 	const start = svg.indexOf(' fill="url(#');
+	// 	svg = svg.substring(0, start) + svg.substring(start + urlLength);
+	// }
+	// console.log('SVG After removing url fills');
+	// console.log(svg);
 
-	ctx.drawImage(workingImage, 0, 0);
-	const resultData = workingCanvas.toDataURL('image/png');
+	let resultData = false;
+	try {
+		const workingCanvas = document.createElement('canvas');
+		workingCanvas.height = 1000;
+		workingCanvas.width = 1000;
+		const ctx = workingCanvas.getContext('2d');
+
+		const workingImage = new Image();
+		workingImage.src = 'data:image/svg+xml; charset=utf8, ';
+		workingImage.src += encodeURIComponent(svg);
+		// console.log(workingImage.src);
+		await workingImage.decode();
+
+		ctx.drawImage(workingImage, 0, 0);
+		resultData = workingCanvas.toDataURL('image/png');
+	} catch (e) {
+		console.warn(e);
+	}
+
 	return resultData;
 }

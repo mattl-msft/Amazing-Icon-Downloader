@@ -247,6 +247,20 @@ function getIcons() {
 		}
 	}
 
+	// Track classes used inside collected symbols/SVGs for later style extraction
+	const usedClasses = new Set();
+	function recordUsedClasses(node) {
+		if (!node || !node.querySelectorAll) return;
+		const classNodes = node.querySelectorAll('[class]');
+		classNodes.forEach((el) => {
+			const cls = el.getAttribute('class');
+			if (!cls) return;
+			cls.split(/\s+/).forEach((c) => {
+				if (c.startsWith('msportalfx-svg-c')) usedClasses.add(c);
+			});
+		});
+	}
+
 	// ========================================
 	// Process definitions
 	// ========================================
@@ -290,6 +304,7 @@ function getIcons() {
 			if (!blocked) {
 				returnElements.push(svg.outerHTML);
 				getOneIcon(svg, nameMap);
+				recordUsedClasses(svg);
 			}
 		}
 	}
@@ -302,6 +317,7 @@ function getIcons() {
 			// console.log(symbol);
 			returnElements.push(symbol.outerHTML);
 			getOneIcon(symbol, nameMap);
+			recordUsedClasses(symbol);
 		}
 	}
 
@@ -322,9 +338,82 @@ function getIcons() {
 	}
 
 	// ========================================
+	// Extract fill & stroke styles for used classes
+	// ========================================
+	const classStyles = {};
+	if (usedClasses.size) {
+		// Attempt to read CSS rules; ignore cross-origin stylesheets
+		for (const sheet of Array.from(document.styleSheets)) {
+			let rules;
+			try {
+				rules = sheet.cssRules;
+			} catch (e) {
+				continue;
+			}
+			if (!rules) continue;
+			for (const rule of Array.from(rules)) {
+				if (!rule.selectorText || !rule.style) continue;
+				if (!/\.msportalfx-svg-c\d+/.test(rule.selectorText)) continue;
+				const fillVal = rule.style.fill || null;
+				const strokeVal = rule.style.stroke || null;
+				const strokeWidth = rule.style.strokeWidth || null;
+				const fillOpacity = rule.style.fillOpacity || null;
+				const strokeOpacity = rule.style.strokeOpacity || null;
+				const opacity = rule.style.opacity || null;
+				const strokeLinecap = rule.style.strokeLinecap || null;
+				const strokeLinejoin = rule.style.strokeLinejoin || null;
+				const strokeDasharray = rule.style.strokeDasharray || null;
+				if (
+					!fillVal &&
+					!strokeVal &&
+					!strokeWidth &&
+					!fillOpacity &&
+					!strokeOpacity &&
+					!opacity &&
+					!strokeLinecap &&
+					!strokeLinejoin &&
+					!strokeDasharray
+				)
+					continue;
+				const selectors = rule.selectorText.split(',');
+				for (let sel of selectors) {
+					sel = sel.trim();
+					if (sel.startsWith('.')) sel = sel.slice(1);
+					if (usedClasses.has(sel)) {
+						if (!classStyles[sel]) classStyles[sel] = {};
+						if (fillVal && !classStyles[sel].fill)
+							classStyles[sel].fill = fillVal;
+						if (strokeVal && !classStyles[sel].stroke)
+							classStyles[sel].stroke = strokeVal;
+						if (strokeWidth && !classStyles[sel].strokeWidth)
+							classStyles[sel].strokeWidth = strokeWidth;
+						if (fillOpacity && !classStyles[sel].fillOpacity)
+							classStyles[sel].fillOpacity = fillOpacity;
+						if (strokeOpacity && !classStyles[sel].strokeOpacity)
+							classStyles[sel].strokeOpacity = strokeOpacity;
+						if (opacity && !classStyles[sel].opacity)
+							classStyles[sel].opacity = opacity;
+						if (strokeLinecap && !classStyles[sel].strokeLinecap)
+							classStyles[sel].strokeLinecap = strokeLinecap;
+						if (strokeLinejoin && !classStyles[sel].strokeLinejoin)
+							classStyles[sel].strokeLinejoin = strokeLinejoin;
+						if (strokeDasharray && !classStyles[sel].strokeDasharray)
+							classStyles[sel].strokeDasharray = strokeDasharray;
+					}
+				}
+			}
+		}
+	}
+
+	// ========================================
 	// Finish up
 	// ========================================
-	let result = { elements: returnElements, names: nameMap, defs: returnDefs };
+	let result = {
+		elements: returnElements,
+		names: nameMap,
+		defs: returnDefs,
+		classStyles,
+	};
 	// console.log(result);
 	return result;
 }
@@ -352,7 +441,7 @@ function processIcons(list) {
 	let oneSVG, oneName;
 
 	for (let i = elements.length - 1; i > -1; i--) {
-		oneSVG = convertSVG(elements[i], list.defs);
+		oneSVG = convertSVG(elements[i], list.defs, list.classStyles || {});
 		oneName = getIconName(oneSVG, list.names);
 		_iconData[`id${idSuffix}`] = {
 			name: oneName,
@@ -491,49 +580,36 @@ function downloadFileFromDataURL(fileName, dataURL) {
 // Change SVG properties so icons work stand-alone
 // ------------------------------------------------
 
-function convertSVG(iconSVG, defs) {
-	// lookup table to get static colors for classes
-	let translate = [
-		{ className: 'msportalfx-svg-c01', fillValue: '#ffffff' },
-		{ className: 'msportalfx-svg-c02', fillValue: '#e5e5e5' },
-		{ className: 'msportalfx-svg-c03', fillValue: '#a0a1a2' },
-		{ className: 'msportalfx-svg-c04', fillValue: '#7a7a7a' },
-		{ className: 'msportalfx-svg-c05', fillValue: '#3e3e3e' },
-		{ className: 'msportalfx-svg-c06', fillValue: '#1e1e1e' },
-		{ className: 'msportalfx-svg-c07', fillValue: '#0f0f0f' },
-		{ className: 'msportalfx-svg-c08', fillValue: '#ba141a' },
-		{ className: 'msportalfx-svg-c09', fillValue: '#dd5900' },
-		{ className: 'msportalfx-svg-c10', fillValue: '#ff8c00' },
-		{ className: 'msportalfx-svg-c11', fillValue: '#fcd116' },
-		{ className: 'msportalfx-svg-c12', fillValue: '#fee087' },
-		{ className: 'msportalfx-svg-c13', fillValue: '#b8d432' },
-		{ className: 'msportalfx-svg-c14', fillValue: '#57a300' },
-		{ className: 'msportalfx-svg-c15', fillValue: '#59b4d9' },
-		{ className: 'msportalfx-svg-c16', fillValue: '#3999c6' },
-		{ className: 'msportalfx-svg-c17', fillValue: '#804998' },
-		{ className: 'msportalfx-svg-c18', fillValue: '#ec008c' },
-		{ className: 'msportalfx-svg-c19', fillValue: '#0072c6' },
-		{ className: 'msportalfx-svg-c20', fillValue: '#68217a' },
-		{ className: 'msportalfx-svg-c21', fillValue: '#00188f' },
-		{ className: 'msportalfx-svg-c22', fillValue: '#a4262c' },
-		{ className: 'msportalfx-svg-c23', fillValue: '#cae3f3' },
-		{ className: 'msportalfx-svg-c24', fillValue: '#59aed3' },
-		{ className: 'msportalfx-svg-c25', fillValue: '#4c3b12' },
-		{ className: 'msportalfx-svg-c26', fillValue: '#be9555' },
-		{ className: 'msportalfx-svg-c27', fillValue: '#4f4d52' },
-		{ className: 'msportalfx-svg-c28', fillValue: '#ef6f59' },
-		{ className: 'msportalfx-svg-c29', fillValue: '#f7cb64' },
-		{ className: 'msportalfx-svg-c30', fillValue: '#fdd8db' },
-		{ className: 'msportalfx-svg-c31', fillValue: '#f6ffec' },
-		{ className: 'msportalfx-svg-c32', fillValue: '#57a300' },
-		{ className: 'msportalfx-svg-c33', fillValue: '#8a2da5' },
-		{ className: 'msportalfx-svg-c34', fillValue: '#e00b1c' },
-		{ className: 'msportalfx-svg-c35', fillValue: '#015cda' },
-		{ className: 'msportalfx-svg-c36', fillValue: '#5db300' },
-		{ className: 'msportalfx-svg-c97', fillValue: '#ffb900' },
-		{ className: 'msportalfx-svg-c98', fillValue: '#00a4ef' },
-		{ className: 'msportalfx-svg-c99', fillValue: '#f25022' },
-	];
+function convertSVG(iconSVG, defs, classStyles) {
+	// Dynamic flattening approach removing manual class to color mapping.
+
+	function collectReferencedIds(fragment) {
+		const ids = new Set();
+		const urlRe = /url\(#([^)]+)\)/g;
+		let m;
+		while ((m = urlRe.exec(fragment))) ids.add(m[1]);
+		const hrefRe = /(?:xlink:href|href)=["']#([^"']+)["']/g;
+		while ((m = hrefRe.exec(fragment))) ids.add(m[1]);
+		return ids;
+	}
+
+	function gatherDefinitions(availableDefs, initialIds) {
+		const collected = new Map();
+		const toProcess = [...initialIds];
+		const seen = new Set();
+		while (toProcess.length) {
+			const id = toProcess.pop();
+			if (seen.has(id)) continue;
+			seen.add(id);
+			const def = availableDefs[id];
+			if (def) {
+				collected.set(id, def);
+				const nested = collectReferencedIds(def);
+				for (const n of nested) if (!seen.has(n)) toProcess.push(n);
+			}
+		}
+		return [...collected.values()];
+	}
 
 	// Change from a symbol reference to an SVG element
 	iconSVG = iconSVG.replace('<svg><defs><symbol', '<svg');
@@ -543,42 +619,109 @@ function convertSVG(iconSVG, defs) {
 	// Setting the XML NameSpace directly enables the SVG graphic to be viewed instead of the XML tree
 	iconSVG = iconSVG.replace('xmlns:svg', 'xmlns');
 
-	// Reservations icon has a bug where they specify the same class twice :-/
-	iconSVG = iconSVG.replace(
-		new RegExp('msportalfx-svg-c01 msportalfx-svg-c01', 'gi'),
-		'msportalfx-svg-c01'
-	);
-	iconSVG = iconSVG.replace(
-		new RegExp('msportalfx-svg-c04 msportalfx-svg-c04', 'gi'),
-		'msportalfx-svg-c04'
-	);
-
-	// Add fill colors for all fill style classes
-	for (let i = 0; i < translate.length; i++) {
+	// Inline class-based fill/stroke (only when element lacks those attributes)
+	if (classStyles && Object.keys(classStyles).length) {
 		iconSVG = iconSVG.replace(
-			new RegExp(` class="${translate[i].className}"`, 'gi'),
-			` class="${translate[i].className}" fill="${translate[i].fillValue}"`
+			/<([a-zA-Z]+)([^>]*?)class="([^"]+)"([^>]*)>/g,
+			(m, tag, pre, classes, post) => {
+				const existing = (attr) =>
+					new RegExp(`${attr}\\s*=`, 'i').test(pre) ||
+					new RegExp(`${attr}\\s*=`, 'i').test(post);
+				const classList = classes.split(/\s+/);
+				let collected = {};
+				for (const c of classList) {
+					const style = classStyles[c];
+					if (!style) continue;
+					if (!existing('fill') && !collected.fill && style.fill)
+						collected.fill = style.fill;
+					if (!existing('stroke') && !collected.stroke && style.stroke)
+						collected.stroke = style.stroke;
+					if (
+						!existing('stroke-width') &&
+						!collected.strokeWidth &&
+						style.strokeWidth
+					)
+						collected.strokeWidth = style.strokeWidth;
+					if (
+						!existing('stroke-linecap') &&
+						!collected.strokeLinecap &&
+						style.strokeLinecap
+					)
+						collected.strokeLinecap = style.strokeLinecap;
+					if (
+						!existing('stroke-linejoin') &&
+						!collected.strokeLinejoin &&
+						style.strokeLinejoin
+					)
+						collected.strokeLinejoin = style.strokeLinejoin;
+					if (
+						!existing('stroke-dasharray') &&
+						!collected.strokeDasharray &&
+						style.strokeDasharray
+					)
+						collected.strokeDasharray = style.strokeDasharray;
+					if (
+						!existing('fill-opacity') &&
+						!collected.fillOpacity &&
+						style.fillOpacity
+					)
+						collected.fillOpacity = style.fillOpacity;
+					if (
+						!existing('stroke-opacity') &&
+						!collected.strokeOpacity &&
+						style.strokeOpacity
+					)
+						collected.strokeOpacity = style.strokeOpacity;
+					if (!existing('opacity') && !collected.opacity && style.opacity)
+						collected.opacity = style.opacity;
+					// Break early if we have gathered all potential attributes
+					if (
+						collected.fill &&
+						collected.stroke &&
+						collected.strokeWidth &&
+						collected.strokeLinecap &&
+						collected.strokeLinejoin &&
+						collected.strokeDasharray &&
+						collected.fillOpacity &&
+						collected.strokeOpacity &&
+						collected.opacity
+					)
+						break;
+				}
+				if (Object.keys(collected).length === 0) return m;
+				let ordered = '';
+				if (collected.fill) ordered += ` fill="${collected.fill}"`;
+				if (collected.stroke) ordered += ` stroke="${collected.stroke}"`;
+				if (collected.strokeWidth)
+					ordered += ` stroke-width="${collected.strokeWidth}"`;
+				if (collected.strokeLinecap)
+					ordered += ` stroke-linecap="${collected.strokeLinecap}"`;
+				if (collected.strokeLinejoin)
+					ordered += ` stroke-linejoin="${collected.strokeLinejoin}"`;
+				if (collected.strokeDasharray)
+					ordered += ` stroke-dasharray="${collected.strokeDasharray}"`;
+				if (collected.fillOpacity)
+					ordered += ` fill-opacity="${collected.fillOpacity}"`;
+				if (collected.strokeOpacity)
+					ordered += ` stroke-opacity="${collected.strokeOpacity}"`;
+				if (collected.opacity) ordered += ` opacity="${collected.opacity}"`;
+				return `<${tag}${pre}class="${classes}"${ordered}${post}>`;
+			}
 		);
 	}
 
-	// Include the right gradient definitions based on fill URLs
+	// Fast path: if there are no url(#...) or href="#..." references, skip definition gathering entirely (after class fill inlining).
+	if (!/url\(#|href="#/.test(iconSVG)) return iconSVG;
 
-	let gradIDs = [];
-	for (let defID in defs) {
-		if (defs.hasOwnProperty(defID)) {
-			if (iconSVG.indexOf(defID) > -1) {
-				gradIDs.push(defID);
-			}
-		}
+	// Collect referenced ids (gradients, masks, filters, etc.) and inline their definitions recursively.
+	const referenced = collectReferencedIds(iconSVG);
+	const neededDefs = gatherDefinitions(defs, referenced);
+	if (neededDefs.length) {
+		const defsBlock = `<defs>\n${neededDefs.join('\n')}\n</defs>`;
+		if (iconSVG.includes('</g></svg>'))
+			iconSVG = iconSVG.replace('</g></svg>', `</g>${defsBlock}</svg>`);
+		else iconSVG = iconSVG.replace('</svg>', `${defsBlock}</svg>`);
 	}
-
-	let defCode = '<defs>';
-	for (let i = 0; i < gradIDs.length; i++) {
-		defCode += `\n${defs[gradIDs[i]]}`;
-	}
-	defCode += '\n</defs>\n';
-	iconSVG = iconSVG.replace('</g></svg>', `</g>${defCode}</svg>`);
-
 	return iconSVG;
 }
 
@@ -650,15 +793,9 @@ ${pngFailures.join('\n')}`);
 }
 
 async function convertSVGToPNG(svg) {
-	// console.log('convertSVGToPNG');
-
-	// let urlLength = ' fill="url(#03ee96cd-18f2-4dee-a5c2-e3be9a7fd022)"'.length;
-	// while(svg.indexOf(' fill="url(#') > -1) {
-	// 	const start = svg.indexOf(' fill="url(#');
-	// 	svg = svg.substring(0, start) + svg.substring(start + urlLength);
-	// }
-	// console.log('SVG After removing url fills');
-	// console.log(svg);
+	/* convertSVGToPNG: Renders an SVG string to a PNG data URL using an off-screen
+   canvas. Any gradient/filter definitions are already inlined earlier by
+   convertSVG; no additional flattening is required here. */
 
 	let resultData = false;
 	try {

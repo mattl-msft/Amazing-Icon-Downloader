@@ -91,7 +91,7 @@ function getIcons() {
 
 	if (!symbols && !hardCodedSVG) {
 		console.warn(
-			`Amazing Icon Downloader - No symbol library or hard-coded SVG icons found.`
+			`Amazing Icon Downloader - No symbol library or hard-coded SVG icons found.`,
 		);
 		return false;
 	}
@@ -179,66 +179,78 @@ function getIcons() {
 
 		// Look for icon name based on DOM tree
 		if (!nameMap[symbolID]) {
-			let query = '[href="#' + symbolID + '"]';
-			let nameElement = document.querySelector(query);
-			if (nameElement) {
+			// An icon can be referenced in multiple places (tiles, breadcrumbs,
+			// nav, etc.) and only some of those have a usable name nearby. Gather
+			// every reference (both `href` and `xlink:href`) and keep looking until
+			// we find a name.
+			let candidates = document.querySelectorAll(
+				'[href="#' + symbolID + '"], [*|href="#' + symbolID + '"]',
+			);
+			for (let ni = 0; ni < candidates.length && !name; ni++) {
+				let nameElement = candidates[ni];
+
 				// Home > Recent
 				if (
-					nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
-						'.fxs-home-recent-typename'
+					!name &&
+					nameElement.parentNode?.parentNode?.parentNode?.parentNode?.querySelector(
+						'.fxs-home-recent-typename',
 					)
 				) {
 					name =
 						nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
-							'.fxs-home-recent-typename'
+							'.fxs-home-recent-typename',
 						).innerText;
 					// console.log(`Special case name found for Home>Recent is ${name}`);
 				}
 
 				// TOC nav
 				if (
-					nameElement.parentNode.parentNode.parentNode.querySelector(
-						'.ext-fxc-menu-listView-item'
+					!name &&
+					nameElement.parentNode?.parentNode?.parentNode?.querySelector(
+						'.ext-fxc-menu-listView-item',
 					)
 				) {
 					name = nameElement.parentNode.parentNode.parentNode.querySelector(
-						'.ext-fxc-menu-listView-item'
+						'.ext-fxc-menu-listView-item',
 					).innerText;
 					// console.log(`Special case name found for TOC is ${name}`);
 				}
 
 				// All services list
 				if (
-					nameElement.parentNode.parentNode.parentNode.querySelector(
-						'.fxs-sidebar-label'
-					) &&
-					nameElement.parentNode.parentNode.parentNode.querySelector(
-						'.fxs-sidebar-label'
-					).children[0]
+					!name &&
+					nameElement.parentNode?.parentNode?.parentNode?.querySelector(
+						'.fxs-sidebar-label-name',
+					)
 				) {
-					name =
-						nameElement.parentNode.parentNode.parentNode.querySelector(
-							'.fxs-sidebar-label'
-						).children[0].innerText;
+					name = nameElement.parentNode.parentNode.parentNode
+						.querySelector('.fxs-sidebar-label-name')
+						.innerText.trim();
 					// console.log(`Special case name found for All Services is ${name}`);
 				}
 
 				// SVG Title node in grid views
-				if (nameElement.parentNode.getElementsByTagName('title').length) {
+				if (
+					!name &&
+					nameElement.parentNode?.getElementsByTagName('title').length
+				) {
 					name =
 						nameElement.parentNode.getElementsByTagName('title')[0].textContent;
 					// console.log(`Special case name found for SVG Title is ${name}`);
 				}
 
 				// generic title attributes
-				if (nameElement && nameElement.title) name = nameElement.title;
-				else if (nameElement.parentNode.title)
+				if (!name && nameElement.title) name = nameElement.title;
+				else if (!name && nameElement.parentNode?.title)
 					name = nameElement.parentNode.title;
-				else if (nameElement.parentNode.parentNode.title)
+				else if (!name && nameElement.parentNode?.parentNode?.title)
 					name = nameElement.parentNode.parentNode.title;
-				else if (nameElement.parentNode.parentNode.parentNode.title)
+				else if (!name && nameElement.parentNode?.parentNode?.parentNode?.title)
 					name = nameElement.parentNode.parentNode.parentNode.title;
-				else if (nameElement.parentNode.parentNode.parentNode.parentNode.title)
+				else if (
+					!name &&
+					nameElement.parentNode?.parentNode?.parentNode?.parentNode?.title
+				)
 					name = nameElement.parentNode.parentNode.parentNode.parentNode.title;
 			}
 
@@ -532,11 +544,11 @@ function populateIconList() {
 		(button) => {
 			if (button.id !== 'downloadAllButton')
 				button.addEventListener('click', downloadIcon);
-		}
+		},
 	);
 
 	Array.from(document.getElementsByClassName('iconNameInput')).forEach(
-		(input) => input.addEventListener('keyup', updateIconName)
+		(input) => input.addEventListener('keyup', updateIconName),
 	);
 }
 
@@ -706,7 +718,7 @@ function convertSVG(iconSVG, defs, classStyles) {
 					ordered += ` stroke-opacity="${collected.strokeOpacity}"`;
 				if (collected.opacity) ordered += ` opacity="${collected.opacity}"`;
 				return `<${tag}${pre}class="${classes}"${ordered}${post}>`;
-			}
+			},
 		);
 	}
 
@@ -768,7 +780,7 @@ function downloadAllIcons() {
 			// console.log(data.svg);
 			iconFolder.file(
 				`${data.name}.svg`,
-				new Blob([data.svg], { type: 'svg' })
+				new Blob([data.svg], { type: 'svg' }),
 			);
 			let base64Data = await convertSVGToPNG(data.svg);
 			if (base64Data !== false) {

@@ -1,0 +1,342 @@
+<html>
+	<head>
+		<title>Amazing Icon Downloader</title>
+		<script src="jszip.min.js"></script>
+		<script src="popup.js"></script>
+		<style>
+			:root {
+				--accent: hsl(210, 90%, 40%);
+				--accent-05: hsla(210, 90%, 40%, 5%);
+				--accent-10: hsla(210, 90%, 40%, 10%);
+				--accent-20: hsla(210, 90%, 40%, 20%);
+				--accent-40: hsla(210, 90%, 40%, 40%);
+				--accent-60: hsla(210, 90%, 40%, 60%);
+				--accent-80: hsla(210, 90%, 40%, 80%);
+				--accent-90: hsla(210, 90%, 40%, 90%);
+				--purple: hsl(298, 83%, 32%);
+				--orange: hsl(31, 100%, 50%);
+				--bg-color: rgb(250, 250, 250);
+				--fade: 200ms;
+			}
+
+			html,
+			body {
+				width: 400px;
+				background-color: var(--bg-color);
+			}
+
+			* {
+				font-family: 'Segoe UI', Segoe, Tahoma, Geneva, Verdana, sans-serif;
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			ul {
+				padding-left: 20px;
+			}
+
+			#top {
+				height: 72px;
+				padding: 16px 0px 10px 20px;
+				background: linear-gradient(hsl(210, 90%, 50%), hsl(210, 90%, 40%));
+				box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.16);
+			}
+
+			#bodyContent {
+				padding: 20px 0px 40px 20px;
+			}
+
+			.firstRow {
+				width: 360px;
+				display: grid;
+				grid-template-columns: 1fr min-content;
+				margin-bottom: 15px;
+				column-gap: 10px;
+			}
+
+			.secondRow {
+				width: 360px;
+				display: grid;
+				grid-template-columns: min-content 1fr;
+				padding-bottom: 10px;
+				margin-bottom: 20px;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.iconRows {
+				display: grid;
+				grid-template-columns: 36px 250px 36px;
+				grid-template-rows: repeat(36px);
+				grid-column-gap: 20px;
+				grid-row-gap: 20px;
+			}
+
+			/*
+				Search bar
+			*/
+			#searchBox {
+				border: 1px solid var(--purple);
+				border-radius: 6px;
+				background-color: white;
+			}
+
+			#searchBox input::after {
+				content: 'o';
+				position: relative;
+				left: -10px;
+			}
+
+			/*
+				Download buttons
+			*/
+			#downloadAllButton,
+			#downloadTypeButton {
+				width: max-content;
+				height: 22px;
+				line-height: 18px;
+				padding: 0px 5px 5px 5px;
+				border: 1px solid var(--accent-40);
+				color: var(--accent);
+				background-color: white;
+				border-radius: 4px;
+				opacity: 0.95;
+				transition: all var(--fade) ease-in-out;
+				font-size: 12px;
+			}
+
+			#downloadAllButton:hover,
+			#downloadTypeButton:hover {
+				opacity: 1;
+				color: white;
+				background-color: var(--accent);
+				box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.16);
+				cursor: pointer;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			#downloadTypeButton {
+				min-width: 36px;
+				margin-left: 2px;
+			}
+
+			.downloadTypeArea {
+				text-align: right;
+				font-size: 12px;
+			}
+
+			/*
+				Info popup
+			*/
+			#openInfo {
+				background-color: transparent;
+				width: 36px;
+			}
+
+			#closeInfo {
+				float: right;
+				width: 36px;
+				height: 36px;
+			}
+
+			#info {
+				display: none;
+				opacity: 0;
+				padding: 20px 20px 40px 20px;
+				position: absolute;
+				top: 72px;
+				background-color: white;
+				box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.16);
+				border-bottom: 1px solid #ccc;
+				transition: opacity 200ms ease-in-out;
+			}
+
+			#info h2 {
+				margin-top: 10px;
+				margin-bottom: 8px;
+				color: var(--purple);
+			}
+
+			#info p {
+				font-size: 14px;
+				margin-bottom: 10px;
+			}
+
+			/*
+				Fancy Button
+			*/
+			.fancyButton {
+				padding: 0;
+				color: var(--accent-80);
+				border: 0;
+				border-radius: 4px;
+				background-image: linear-gradient(
+					315deg,
+					var(--purple),
+					var(--purple),
+					var(--accent),
+					var(--purple),
+					var(--orange),
+					var(--purple),
+					var(--purple)
+				);
+				background-size: 1400% 1400%;
+				animation: disco 4s linear infinite;
+			}
+
+			.fancyButton span {
+				display: block;
+				height: 36px;
+				padding: 10px 10px 6px 9px;
+				background-color: var(--bg-color);
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.fancyButton span svg {
+				position: relative;
+				top: 2px;
+				fill: var(--accent-80);
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.fancyButton:hover,
+			.fancyButton:focus {
+				color: white;
+				cursor: pointer;
+				box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.16);
+				transition: all var(--fade) ease-in-out;
+			}
+
+			@keyframes disco {
+				0% {
+					background-position: 0% 0%;
+				}
+				100% {
+					background-position: 100% 100%;
+				}
+			}
+
+			.fancyButton:hover span,
+			.fancyButton:focus span {
+				background-color: transparent;
+				color: white;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.fancyButton:hover span svg,
+			.fancyButton:focus span svg {
+				fill: white;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			/*
+				Icon rows
+			*/
+			.rowWrapper {
+				display: contents;
+			}
+
+			.iconPreview {
+				max-height: 36px;
+				max-width: 36px;
+			}
+
+			.downloadButton {
+				opacity: 0.5;
+				border: 1px solid var(--accent);
+				border-radius: 4px;
+				color: var(--accent);
+				fill: var(--accent);
+				background-color: white;
+				font-size: 1.6em;
+			}
+
+			.downloadButton:hover,
+			.downloadButton:focus {
+				opacity: 1;
+				background-color: var(--accent);
+				color: white;
+				fill: white;
+				box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.16);
+				cursor: pointer;
+			}
+
+			.iconName input,
+			#searchBox,
+			.downloadButton {
+				width: 100%;
+				height: 30px;
+				margin: 3px 0px;
+				padding: 2px 8px;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.iconName input {
+				border: 1px solid #eee;
+			}
+
+			#searchBox:focus,
+			.fancyButton:focus,
+			.iconName input:focus,
+			.downloadButton:focus {
+				outline: 1px dotted var(--purple);
+				outline-offset: 2px;
+				transition: all var(--fade) ease-in-out;
+			}
+
+			.iconName input:hover {
+				border-color: #bbb;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="top"><img src="icons/logo.svg" /></div>
+		<div id="bodyContent"></div>
+		<div id="info">
+			<div class="firstRow">
+				<h2>Howdy!</h2>
+				<button id="closeInfo" class="fancyButton">
+					<span>
+						<svg
+							version="1.1"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+							xml:space="preserve"
+							x="0px"
+							y="0px"
+							width="14px"
+							height="14px"
+							viewBox="0 0 14 14"
+							style="enable-background: new 0 0 14 14"
+						>
+							<polygon
+								points="14,3 11,0 7,4 3,0 0,3 4,7 0,11 3,14 7,10 11,14 14,11 10,7 "
+							/>
+						</svg>
+					</span>
+				</button>
+			</div>
+			<p>
+				This tool works by scraping SVG code from certain parts of the
+				Azure&trade; Management Portal's HTML code. You may see icons in the
+				downloader that aren't visible on the page, and, you may see icons on
+				the page that aren't shown in the downloader. Not quite perfect.
+			</p>
+			<p>
+				Names of the icons are guessed based on HTML stuff (labels, titles) that
+				are found 'close' to the icon. Again, an imperfect system.
+			</p>
+			<p>But mostly it works pretty well&emsp;&macr;\_(&#x30c4;)_/&macr;</p>
+			<p>
+				<i>Amazing Icon Downloader: Version 2.2 (October 2024)</i>
+			</p>
+
+			<br />
+			<h2>Contact</h2>
+			<p>
+				Any issues, comments, or feature requests can be directed at
+				<a href="mailto:matt@mattlag.com">matt@mattlag.com</a>.
+			</p>
+		</div>
+	</body>
+</html>

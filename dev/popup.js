@@ -190,42 +190,38 @@ function getIcons() {
 				let nameElement = candidates[ni];
 
 				// Home > Recent
-				if (
-					!name &&
+				let homeRecentEl =
 					nameElement.parentNode?.parentNode?.parentNode?.parentNode?.querySelector(
 						'.fxs-home-recent-typename',
-					)
-				) {
-					name =
-						nameElement.parentNode.parentNode.parentNode.parentNode.querySelector(
-							'.fxs-home-recent-typename',
-						).innerText;
+					);
+				if (!name && homeRecentEl) {
+					name = (homeRecentEl.textContent || '').trim();
 					// console.log(`Special case name found for Home>Recent is ${name}`);
 				}
 
 				// TOC nav
-				if (
-					!name &&
+				let tocEl =
 					nameElement.parentNode?.parentNode?.parentNode?.querySelector(
 						'.ext-fxc-menu-listView-item',
-					)
-				) {
-					name = nameElement.parentNode.parentNode.parentNode.querySelector(
-						'.ext-fxc-menu-listView-item',
-					).innerText;
+					);
+				if (!name && tocEl) {
+					name = (tocEl.textContent || '').trim();
 					// console.log(`Special case name found for TOC is ${name}`);
 				}
 
-				// All services list
-				if (
-					!name &&
+				// All services list. The label often lives inside a collapsed
+				// flyout, so `innerText` would be empty; use the `title`
+				// attribute (layout-independent) with a `textContent` fallback.
+				let sidebarLabelEl =
 					nameElement.parentNode?.parentNode?.parentNode?.querySelector(
 						'.fxs-sidebar-label-name',
-					)
-				) {
-					name = nameElement.parentNode.parentNode.parentNode
-						.querySelector('.fxs-sidebar-label-name')
-						.innerText.trim();
+					);
+				if (!name && sidebarLabelEl) {
+					name = (
+						sidebarLabelEl.getAttribute('title') ||
+						sidebarLabelEl.textContent ||
+						''
+					).trim();
 					// console.log(`Special case name found for All Services is ${name}`);
 				}
 
@@ -257,6 +253,8 @@ function getIcons() {
 			if (name) nameMap[symbolID] = name;
 			// console.log(`Getting name for symbol ${symbolID} returned ${name}`);
 		}
+
+		return symbolID;
 	}
 
 	// Track classes used inside collected symbols/SVGs for later style extraction
@@ -271,6 +269,42 @@ function getIcons() {
 				if (c.startsWith('msportalfx-svg-c')) usedClasses.add(c);
 			});
 		});
+	}
+
+	// Build a stable signature from an icon's drawing geometry. Two icons with
+	// the same signature are the same artwork and can therefore share a name.
+	function getArtworkSignature(node) {
+		if (!node || !node.querySelectorAll) return '';
+		const parts = [];
+		node
+			.querySelectorAll('path[d]')
+			.forEach((p) => parts.push('p' + p.getAttribute('d')));
+		node
+			.querySelectorAll('polygon[points], polyline[points]')
+			.forEach((p) => parts.push('g' + p.getAttribute('points')));
+		node
+			.querySelectorAll('circle, ellipse, rect, line')
+			.forEach((s) => parts.push('s' + s.outerHTML));
+		return parts.join('|').replace(/\s+/g, '');
+	}
+
+	// Read an icon's own <title> text. Many portal symbols embed a name such as
+	// "SQL elastic pool", which is far more useful than the raw symbol id.
+	function getOwnTitle(node) {
+		if (!node || !node.querySelector) return '';
+		const titleNode = node.querySelector('title');
+		const raw =
+			titleNode && titleNode.textContent ? titleNode.textContent.trim() : '';
+		if (!raw) return '';
+		// Skip generic vector-editor export artifacts that carry no meaning.
+		if (
+			/^(asset|artboard|layer|image|group|clip|mask|path|graph_color)\b/i.test(
+				raw,
+			)
+		)
+			return '';
+		if (/^[-_\d\s.]+$/.test(raw)) return '';
+		return raw;
 	}
 
 	// ========================================
@@ -288,6 +322,9 @@ function getIcons() {
 	// ========================================
 	let returnElements = [];
 	let nameMap = {};
+	// Per-icon metadata (id, artwork signature, own <title>) used afterwards to
+	// fill in any names that the direct lookups above could not resolve.
+	let symbolInfo = [];
 
 	// Get hard-coded SVG from the page
 	let hasInfoIcon = false;
@@ -315,7 +352,12 @@ function getIcons() {
 
 			if (!blocked) {
 				returnElements.push(svg.outerHTML);
-				getOneIcon(svg, nameMap);
+				let sid = getOneIcon(svg, nameMap);
+				symbolInfo.push({
+					id: sid,
+					sig: getArtworkSignature(svg),
+					title: getOwnTitle(svg),
+				});
 				recordUsedClasses(svg);
 			}
 		}
@@ -328,8 +370,37 @@ function getIcons() {
 			let symbol = symbols.children[i];
 			// console.log(symbol);
 			returnElements.push(symbol.outerHTML);
-			getOneIcon(symbol, nameMap);
+			let sid = getOneIcon(symbol, nameMap);
+			symbolInfo.push({
+				id: sid,
+				sig: getArtworkSignature(symbol),
+				title: getOwnTitle(symbol),
+			});
 			recordUsedClasses(symbol);
+		}
+	}
+
+	// ========================================
+	// Fill in names the direct lookups missed
+	// ========================================
+	// 1) Propagate names between icons that share identical artwork. Many library
+	//    symbols are duplicates of an icon that WAS named elsewhere on the page.
+	const sigToName = {};
+	for (const info of symbolInfo) {
+		if (info.sig && info.id && nameMap[info.id] && !sigToName[info.sig]) {
+			sigToName[info.sig] = nameMap[info.id];
+		}
+	}
+	for (const info of symbolInfo) {
+		if (info.sig && info.id && !nameMap[info.id] && sigToName[info.sig]) {
+			nameMap[info.id] = sigToName[info.sig];
+		}
+	}
+
+	// 2) Fall back to the icon's own embedded <title> text.
+	for (const info of symbolInfo) {
+		if (info.id && !nameMap[info.id] && info.title) {
+			nameMap[info.id] = info.title;
 		}
 	}
 
